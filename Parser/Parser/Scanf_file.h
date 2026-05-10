@@ -68,6 +68,73 @@ void scanf_all_info(vector<string>& Name_number_contest, vector<string>& Name_ta
 	scanf_file_compiler(Loc_file_compiler, Name_compiler);
 }
 
+// Возвращает названия папок
+void scanf_folder_names(const string& path, vector<string>& folders) {
+
+	try {
+		for (const auto& entry : fs::directory_iterator(path)) {
+			if (entry.is_directory()) {
+				folders.push_back(entry.path().filename().string());
+			}
+		}
+	}
+	catch (const fs::filesystem_error& ex) {
+		cerr << "Ошибка доступа к папке: " << ex.what() << endl;
+	}
+}
+
+// Возвращает названия файлов
+void scanf_files_names(const string& path, vector<string>& files) {
+
+	try {
+		for (const auto& entry : fs::directory_iterator(path)) {
+			if (entry.is_regular_file()) {
+				files.push_back(entry.path().filename().string());
+			}
+		}
+	}
+	catch (const fs::filesystem_error& ex) {
+		cerr << "Ошибка доступа к папке: " << ex.what() << endl;
+	}
+}
+
+// Проверяет названия файлов. С вердиктом OK или Ignor возвращает true
+bool isValidOkOrIgnor(string_view str) {
+	static const regex r(R"((OK))");
+	static const regex r2(R"((Ignored))");
+	return regex_search(str.data(), r) || regex_search(str.data(), r2);
+}
+
+//all_base_info
+void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puth)
+{
+	vector<string> Name_contests;
+	//scanf_folder_names(Folder_base_put, Name_contests);
+	//Name_contests.push_back("Test");
+	Name_contests.push_back("contest-Муницип");
+
+	for (string Name_contest : Name_contests) {
+		string Loc_file_student = Folder_base_put + '/' + Name_contest;
+		vector<string> Name_students;
+		scanf_folder_names(Loc_file_student, Name_students);
+		vector<pair<string, map<char, vector<string>>>> Name_student_tasks;
+
+		for (string Name_student : Name_students) {
+			string Loc_file_tasks = Loc_file_student + '/' + Name_student;
+			vector<string> Name_tasks;
+			scanf_files_names(Loc_file_tasks, Name_tasks);
+			map<char, vector<string>> Name_tasks_map;
+
+			for (string Name_task : Name_tasks) {
+				//if (isValidOkOrIgnor(Name_task))
+					Name_tasks_map[Name_task[0]].push_back(Name_task);
+			}
+			Name_student_tasks.push_back({ Name_student ,Name_tasks_map });
+		}
+		puth.push_back({ Name_contest, Name_student_tasks });
+	}
+}
+
 void scan_info_solution(string fileName, Solution_stud& sol) 
 {
 	ifstream in(fileName);

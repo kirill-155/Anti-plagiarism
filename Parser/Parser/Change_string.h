@@ -9,8 +9,10 @@ void Clear_Mark_char()
 		Mark_char[i] = 0;
 }
 
-string change_str(string s)
+string change_str(string s, int& comments)
 {
+	const char* forbidden = "(){}[]<>;";
+	int k = 0;
 	Clear_Mark_char();
 	if (s.size() > 10000)
 		return s;
@@ -31,20 +33,44 @@ string change_str(string s)
 		{
 			if (s[i + 1] == '/')
 			{
+				bool f = 1;
+				Mark_char[i] = 2;
+				++i;
 				while (s[i] != '\n' && i < s.size())
 				{
-					Mark_char[i] = 1;
+					Mark_char[i] = 2;
 					++i;
+					k++;
+					if (f && strchr(forbidden, s[i]) != nullptr && i < s.size())
+						f = 0;
 				}
+				if (f)
+					comments += k - 1;
+				k = 0;
 				--i;
 			}
 			else if (s[i + 1] == '*')
 			{
-				while ((s[i] != '*' && s[i + 1] != '/') && i < s.size())
+				bool f = 1;
+				Mark_char[i] = 2;
+				++i;
+				while ((s[i] != '*' || s[i + 1] != '/') && i < s.size())
 				{
-					Mark_char[i] = 1;
+					Mark_char[i] = 2;
 					++i;
+					if (s[i] != '\n')
+						k++;
+					if (f && strchr(forbidden, s[i]) != nullptr && i < s.size())
+						f = 0;
 				}
+				if (s[i] == '*' && s[i + 1] == '/') {
+					Mark_char[i] = 2;
+					Mark_char[i + 1] = 2;
+					i += 2;
+				}
+				if (f)
+					comments += k - 1;
+				k = 0;
 				--i;
 			}
 		}
@@ -54,6 +80,8 @@ string change_str(string s)
 	{
 		if (Mark_char[i] == 0)
 			result_str += s[i];
+		//if (Mark_char[i] == 2)
+		//	comments++;
 	}
 	return result_str;
 }

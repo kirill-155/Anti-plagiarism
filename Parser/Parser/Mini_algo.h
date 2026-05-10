@@ -16,7 +16,7 @@ void Result_all_stud(
 			count_accept++;
 		}
 		if (sol_stud[i].verdict == "Coincidence" &&
-			sol_stud[i].dist_levenstein > 40)
+			sol_stud[i].dist_levenstein > DIST_LEVENSTEIN)
 		{
 			count_accept++;
 		}
@@ -25,14 +25,12 @@ void Result_all_stud(
 	All_stud.push_back(info_one_stud);
 }
 
-string Generate_path_solution(string Name_student,
-	string Name_number_contest,
-	string Name_tasks)
+string Generate_path_solution(string& Name_number_contest, string& Name_student, string& Name_tasks)
 {
-	string path = Folder_base_put + Folder_base_stud;
-	path += Name_student + '/';
+	string path = Folder_base_put + '/';
 	path += Name_number_contest + '/';
-	path += Name_tasks + ".txt";
+	path += Name_student + '/';
+	path += Name_tasks;
 	return path;
 }
 
@@ -40,8 +38,8 @@ string Generate_path_coach(string Name_number_contest,
 	string Name_tasks)
 {
 	string path = Folder_base_put + Folder_base_stud;
-	path += Nick_name_coach + '/';
 	path += Name_number_contest + '/';
+	path += Nick_name_coach + '/';
 	path += Name_tasks + ".txt";
 	return path;
 }
