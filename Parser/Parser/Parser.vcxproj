@@ -137,6 +137,8 @@
     <ClInclude Include="Levenstein.h" />
     <ClInclude Include="Mini_algo.h" />
     <ClInclude Include="Scanf_file.h" />
+    <ClInclude Include="Standardizer_cpp.h" />
+    <ClInclude Include="Standardizer_csh.h" />
     <ClInclude Include="Write_file.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

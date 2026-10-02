@@ -14,21 +14,22 @@
 using namespace std;
 namespace fs = filesystem;
 
-string Folder_base_put = "..\\..\\..\\Соревнование\\"; // базовая папка где лежит все
-string File_contest = "contest.txt";
-string File_tasks = "tasks.txt";
-string File_compiler = "compiler.txt";
-string File_student = "student.txt";
-string Folder_base_stud = "stud_work\\";
-string Folder_result = "..\\..\\..\\Списки списавших\\Муницип";
+string Folder_base_put = "..\\..\\..\\Соревнование\\";          // Корневая папка где лежат данные с соревнований
+string File_contest = "contest.txt";						    // Файл с названиями соревнований
+string File_tasks = "tasks.txt";							    // Файл с названиями заданий
+string File_compiler = "compiler.txt";						    // Файл с названиями компиляторов
+string File_student = "student.txt";						    // Файл со именами студентов
+string Folder_base_stud = "stud_work\\";					    //
+string Folder_result = "..\\..\\..\\Списки списавших\\Муницип"; // Корневая папка результатов
 
 string Nick_name_coach = "Kirill-_-";
 const int DIST_LEVENSTEIN = 5;
 const int NUM_COMMENTS = 0;
+bool Flag_ValidOkOrIgnor = false;			  // Cчитывать только Ok или Ignor
 
 struct Solution_stud{
 	string Name_contest = ""; 				  // Название контеста
-	string Name_problem = "";				  // Название задачи
+	string Name_problem = "";				  // Название файла
 	string Name_package = "";				  // 
 	string Name_compiler = "";				  // Компилятор
 	string Name_stud = "";					  // Имя студента

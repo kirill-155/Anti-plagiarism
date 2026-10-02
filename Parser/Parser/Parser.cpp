@@ -4,11 +4,15 @@
 #include "Levenstein.h"
 #include "Change_string.h"
 #include "Mini_algo.h"
+#include "Standardizer_cpp.h"
+#include "Standardizer_csh.h"
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 	vector<pair<string, vector<pair<string, map<char, vector<string>>>>>> puths;// контест, студенты, задачи
+	CppStandardizer stdz_cpp;
+	CSharpStandardizer stdz_csh;
 	scanf_all_info(puths);
 
 	for (int id_contest = 0; id_contest < puths.size(); id_contest++) 
@@ -33,26 +37,33 @@ int main()
 						sol.Name_problem = task;
 						sol.dist_levenstein = 1000;
 						sol.verdict = "Ok";
-						sol.Solution = change_str(sol.Solution, sol.Number_comments);
-						if (sol.Number_comments > NUM_COMMENTS)
-							sol.verdict = "Great comment";
+						sol.Name_compiler = (is_valid_cpp(sol.Name_problem) ? "C++" : (is_valid_csh(sol.Name_problem) ? "C#" : ""));
+						string Cod = sol.Solution;
+						if (sol.Name_compiler == "C++")
+							Cod = stdz_cpp.standardize(sol.Solution);
+						if (sol.Name_compiler == "C#")
+							Cod = stdz_csh.standardize(sol.Solution);
+						sol.Solution = change_str(Cod, sol.Number_comments);
 						for (int id_stud_con = 0; id_stud_con < puths[id_contest].second.size(); id_stud_con++)
 						{
 							for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])
 							{
-								if (id_stud != id_stud_con) 
+								if (id_stud != id_stud_con) // студенты разные
 								{
 									string path_con = Generate_path_solution(puths[id_contest].first,
 										puths[id_contest].second[id_stud_con].first, task_con);
 									ifstream in_con(path_con);
 									if (in_con.is_open()) {
-										Solution_stud sol_con;
+										string sol_con;
 										string str_con;
 										while (getline(in_con, str_con)) {
-											sol_con.Solution += str_con + '\n';
+											sol_con += str_con + '\n';
 										}
-										sol_con.Solution = change_str(sol_con.Solution, sol_con.Number_comments);
-										int dist = Algo_levenstein(sol.Solution, sol_con.Solution);
+										string Cod_con = (is_valid_cpp(task_con) ? stdz_cpp.standardize(sol_con) : 
+											(is_valid_csh(sol.Name_problem) ? stdz_csh.standardize(sol.Solution) : sol_con));
+										int com;
+										sol_con = change_str(Cod_con, com);
+										int dist = Algo_levenstein(sol.Solution, sol_con);
 										if (sol.dist_levenstein > dist)
 										{
 											sol.dist_levenstein = dist;
@@ -74,7 +85,7 @@ int main()
 				}
 			}
 		}
-		write_info_cheat_stud1(puths, sol_stud, id_contest);
+		write_info_cheat_stud(puths, sol_stud, id_contest);
 	}
 
 

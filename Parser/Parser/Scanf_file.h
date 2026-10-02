@@ -126,7 +126,7 @@ void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<str
 			map<char, vector<string>> Name_tasks_map;
 
 			for (string Name_task : Name_tasks) {
-				//if (isValidOkOrIgnor(Name_task))
+				if (!Flag_ValidOkOrIgnor || isValidOkOrIgnor(Name_task))
 					Name_tasks_map[Name_task[0]].push_back(Name_task);
 			}
 			Name_student_tasks.push_back({ Name_student ,Name_tasks_map });
