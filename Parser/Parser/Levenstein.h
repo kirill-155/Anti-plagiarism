@@ -17,7 +17,7 @@ int Algo_levenstein(string str1, string str2)
 	if (str1.size() >= Matrix_levenstein.size() || str2.size() >= Matrix_levenstein[0].size())
 		return 1000;
 	int max_len = str2.size() - str1.size();
-	if (abs(max_len) > 40)
+	if (abs(max_len) > DIST_LEVENSTEIN)
 		return 1000;
 	Claer_matrix(str1.size(), str2.size());
 	for (int i = 0; i < str1.size(); ++i)
