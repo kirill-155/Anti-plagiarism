@@ -95,3 +95,15 @@ void check_time_solution(vector<Solution_stud>& sol_stud)
 		}
 	}
 }
+
+// Проверяет названия файлов. С компилятором от с++ возвращает true
+bool is_valid_cpp(string_view str) {
+	static const regex r(R"((clang14_cpp20)|(gcc14_cpp23))");
+	return regex_search(str.data(), r);
+}
+
+// Проверяет названия файлов. С компилятором от с# возвращает true
+bool is_valid_csh(string_view str) {
+	static const regex r(R"((dotnet8))");
+	return regex_search(str.data(), r);
+}

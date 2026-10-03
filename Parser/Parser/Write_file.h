@@ -82,18 +82,6 @@ bool isValidOkOrIgnor1(string_view str) {
 	return regex_search(str.data(), r) || regex_search(str.data(), r2);
 }
 
-// Проверяет названия файлов. С компилятором от с++ возвращает true
-bool is_valid_cpp(string_view str) {
-	static const regex r(R"((clang14_cpp20)|(gcc14_cpp23))");
-	return regex_search(str.data(), r);
-}
-
-// Проверяет названия файлов. С компилятором от с# возвращает true
-bool is_valid_csh(string_view str) {
-	static const regex r(R"((dotnet8))");
-	return regex_search(str.data(), r);
-}
-
 void write_info_cheat_stud_comment(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int& id_contest) {
 	vector<int> f = { 0,5,10,20,30,40,50,100 }; // Количество комментариев
 	for (int p : f) 
