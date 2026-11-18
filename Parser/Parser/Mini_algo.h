@@ -107,3 +107,4 @@ bool is_valid_csh(string_view str) {
 	static const regex r(R"((dotnet8))");
 	return regex_search(str.data(), r);
 }
+

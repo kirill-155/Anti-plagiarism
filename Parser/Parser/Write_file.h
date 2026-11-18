@@ -36,9 +36,14 @@ void write_info_all_stud(vector<pair<string, int>> All_stud)
 	out.close();
 }
 
+bool dist_lev_sort(Solution_stud& a, Solution_stud& b) {
+	return a.dist_levenstein < b.dist_levenstein;
+}
+
 // Выывод пар решений с наименьшим расстоянием Левенштейна
 void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int id_contest)
 {
+	sort(sol_stud.begin(), sol_stud.end(), dist_lev_sort);
 	set<string> st;
 	ofstream out(Folder_result + "\\" + puths[id_contest].first + " " + to_string(DIST_LEVENSTEIN) + ".txt");
 	for (int i = 0; i < sol_stud.size(); i++)
@@ -54,9 +59,14 @@ void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, ma
 	out.close();
 }
 
+bool num_com_sort(Solution_stud& a, Solution_stud& b) {
+	return a.Number_comments > b.Number_comments;
+}
+
 // Вывод количества комментариев для решений
 void write_info_cheat_stud_comments(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int id_contest)
 {
+	sort(sol_stud.begin(), sol_stud.end(), num_com_sort);
 	ofstream out_comment(Folder_result + "\\" + puths[id_contest].first + " Comment " + to_string(NUM_COMMENTS) + ".txt");
 	for (int i = 0; i < sol_stud.size(); i++)
 	{

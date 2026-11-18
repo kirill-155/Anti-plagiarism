@@ -40,9 +40,9 @@ int main()
 						sol.Name_compiler = (is_valid_cpp(sol.Name_problem) ? "C++" : (is_valid_csh(sol.Name_problem) ? "C#" : ""));
 						string Cod = sol.Solution;
 						if (sol.Name_compiler == "C++")
-							Cod = stdz_cpp.standardize(sol.Solution);
+							Cod = stdz_cpp.standardize(Cod);
 						if (sol.Name_compiler == "C#")
-							Cod = stdz_csh.standardize(sol.Solution);
+							Cod = stdz_csh.standardize(Cod);
 						sol.Solution = change_str(Cod, sol.Number_comments);
 						for (int id_stud_con = 0; id_stud_con < puths[id_contest].second.size(); id_stud_con++)
 						{

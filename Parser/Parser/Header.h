@@ -20,7 +20,7 @@ string File_tasks = "tasks.txt";							    // Файл с названиями заданий
 string File_compiler = "compiler.txt";						    // Файл с названиями компиляторов
 string File_student = "student.txt";						    // Файл со именами студентов
 string Folder_base_stud = "stud_work\\";					    //
-string Folder_result = "..\\..\\..\\Списки списавших\\Муницип"; // Корневая папка результатов
+string Folder_result = "..\\..\\..\\Списки списавших\\submissions1"; // Корневая папка результатов
 
 string Nick_name_coach = "Kirill-_-";
 const int DIST_LEVENSTEIN = 5;
