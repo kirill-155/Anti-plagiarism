@@ -109,9 +109,8 @@ bool isValidOkOrIgnor(string_view str) {
 void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puth)
 {
 	vector<string> Name_contests;
-	//scanf_folder_names(Folder_base_put, Name_contests);
+	scanf_folder_names(Folder_base_put, Name_contests);
 	//Name_contests.push_back("Test");
-	Name_contests.push_back("contest-Муницип");
 
 	for (string Name_contest : Name_contests) {
 		string Loc_file_student = Folder_base_put + '/' + Name_contest;
@@ -121,7 +120,12 @@ void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<str
 
 		for (string Name_student : Name_students) {
 			string Loc_file_tasks = Loc_file_student + '/' + Name_student;
-			vector<string> Name_tasks;
+			vector<string> Name_tasks, OK;
+			scanf_folder_names(Loc_file_tasks, OK);
+			if (OK.size() > 0 && OK[0] == "OK" || OK.size() > 1 && OK[1] == "OK")
+				Loc_file_tasks += "/OK";
+			else
+				continue;
 			scanf_files_names(Loc_file_tasks, Name_tasks);
 			map<char, vector<string>> Name_tasks_map;
 

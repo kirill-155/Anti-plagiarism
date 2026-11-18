@@ -29,7 +29,7 @@ string Generate_path_solution(string& Name_number_contest, string& Name_student,
 {
 	string path = Folder_base_put + '/';
 	path += Name_number_contest + '/';
-	path += Name_student + '/';
+	path += Name_student + "/OK/";
 	path += Name_tasks;
 	return path;
 }
@@ -39,7 +39,7 @@ string Generate_path_coach(string Name_number_contest,
 {
 	string path = Folder_base_put + Folder_base_stud;
 	path += Name_number_contest + '/';
-	path += Nick_name_coach + '/';
+	path += Nick_name_coach + "/OK/";
 	path += Name_tasks + ".txt";
 	return path;
 }

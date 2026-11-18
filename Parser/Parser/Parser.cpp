@@ -15,14 +15,14 @@ int main()
 	CSharpStandardizer stdz_csh;
 	scanf_all_info(puths);
 
-	for (int id_contest = 0; id_contest < puths.size(); id_contest++) 
+	for (int id_contest = 0; id_contest < puths.size(); id_contest++) // Перебираем по контестам
 	{
 		vector<Solution_stud> sol_stud;
-		for (int id_stud = 0; id_stud < puths[id_contest].second.size(); id_stud++) 
+		for (int id_stud = 0; id_stud < puths[id_contest].second.size(); id_stud++) // Перебираем по студентам
 		{
-			for (pair<char, vector<string>> tasks : puths[id_contest].second[id_stud].second)
+			for (pair<char, vector<string>> tasks : puths[id_contest].second[id_stud].second) // Перебираем по заданиям
 			{
-				for (string task : tasks.second) 
+				for (string task : tasks.second) // Перебираем по решениям задач
 				{
 					Solution_stud sol;
 					string path = Generate_path_solution(puths[id_contest].first,

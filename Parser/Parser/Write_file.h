@@ -1,5 +1,6 @@
 #pragma once
-#include"Header.h"
+#include "Header.h"
+#include "Mini_algo.h"
 
 void write_info_stud(string Name_student, vector<Solution_stud>& Stud)
 {

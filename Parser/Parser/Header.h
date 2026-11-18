@@ -14,7 +14,7 @@
 using namespace std;
 namespace fs = filesystem;
 
-string Folder_base_put = "..\\..\\..\\Соревнование\\";          // Корневая папка где лежат данные с соревнований
+string Folder_base_put = "..\\..\\..\\submission\\submissions1";          // Корневая папка где лежат данные с соревнований
 string File_contest = "contest.txt";						    // Файл с названиями соревнований
 string File_tasks = "tasks.txt";							    // Файл с названиями заданий
 string File_compiler = "compiler.txt";						    // Файл с названиями компиляторов
