@@ -11,8 +11,6 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 	vector<pair<string, vector<pair<string, map<char, vector<string>>>>>> puths;// контест, студенты, задачи
-	CppStandardizer stdz_cpp;
-	CSharpStandardizer stdz_csh;
 	scanf_all_info(puths);
 
 	for (int id_contest = 0; id_contest < puths.size(); id_contest++) // ѕеребираем по контестам
@@ -40,10 +38,7 @@ int main()
 						//sol.Name_compiler = (is_valid_cpp(sol.Name_problem) ? "C++" : (is_valid_csh(sol.Name_problem) ? "C#" : ""));
 						string Code = sol.Solution;
 						sol.Name_compiler = identif_compil(Code);
-						if (sol.Name_compiler == "C++")
-							Code = stdz_cpp.standardize(Code);
-						if (sol.Name_compiler == "C#")
-							Code = stdz_csh.standardize(Code);
+						Code = standardize(Code, sol.Name_compiler);
 						sol.Solution = change_str(Code, sol.Number_comments);
 						for (int id_stud_con = 0; id_stud_con < puths[id_contest].second.size(); id_stud_con++)
 						{
@@ -60,10 +55,9 @@ int main()
 										while (getline(in_con, str_con)) {
 											sol_con += str_con + '\n';
 										}
-										string Code_con = (is_valid_cpp(task_con) ? stdz_cpp.standardize(sol_con) : 
-											(is_valid_csh(sol.Name_problem) ? stdz_csh.standardize(sol.Solution) : sol_con));
+										sol_con = standardize(sol_con, identif_compil(sol_con));
 										int com;
-										sol_con = change_str(Code_con, com);
+										sol_con = change_str(sol_con, com);
 										int dist = Algo_levenstein(sol.Solution, sol_con);
 										if (sol.dist_levenstein > dist)
 										{

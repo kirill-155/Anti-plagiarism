@@ -1,5 +1,7 @@
 #pragma once
 #include "Header.h"
+#include "Standardizer_cpp.h"
+#include "Standardizer_csh.h"
 
 void Result_all_stud(
 	string Name_student,
@@ -178,4 +180,16 @@ string identif_compil(const string& code) {
 	if (cs >= 3 && cs > cpp && cs > py) return "C#";
 	if (py >= 3 && py > cpp && py > cs) return "Python";
 	return "Unknown";
+}
+
+string standardize(string& Code, const string& compiler) {
+	if (compiler == "C++") {
+		CppStandardizer stdz_cpp;
+		return stdz_cpp.standardize(Code);
+	}
+	if (compiler == "C#") {
+		CSharpStandardizer stdz_csh;
+		return stdz_csh.standardize(Code);
+	}
+	return Code;
 }
