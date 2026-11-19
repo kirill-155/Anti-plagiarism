@@ -39,7 +39,7 @@ int main()
 						string Code = sol.Solution;
 						sol.Name_compiler = identif_compil(Code);
 						Code = standardize(Code, sol.Name_compiler);
-						sol.Solution = change_str(Code, sol.Number_comments);
+						sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
 						for (int id_stud_con = 0; id_stud_con < puths[id_contest].second.size(); id_stud_con++)
 						{
 							for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])
@@ -55,9 +55,10 @@ int main()
 										while (getline(in_con, str_con)) {
 											sol_con += str_con + '\n';
 										}
-										sol_con = standardize(sol_con, identif_compil(sol_con));
+										string leng = identif_compil(sol_con);
+										sol_con = standardize(sol_con, leng);
 										int com;
-										sol_con = change_str(sol_con, com);
+										sol_con = change_str(sol_con, com, leng);
 										int dist = Algo_levenstein(sol.Solution, sol_con);
 										if (sol.dist_levenstein > dist)
 										{
