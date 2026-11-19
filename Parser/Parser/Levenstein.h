@@ -12,33 +12,35 @@ void Claer_matrix(int mi, int mj)
 	}
 }
 
-int Algo_levenstein(string str1, string str2)
+int Algo_levenstein(string str1, string str2, int limit)
 {
-	if (str1.size() >= Matrix_levenstein.size() || str2.size() >= Matrix_levenstein[0].size())
+	int n = str1.size(), m = str2.size();
+	if (n >= Matrix_levenstein.size() || m >= Matrix_levenstein[0].size())
 		return 1000;
-	int max_len = str2.size() - str1.size();
-	if (abs(max_len) > DIST_LEVENSTEIN)
+	int max_len = abs(m - n);
+	if (max_len > DIST_LEVENSTEIN || max_len > limit)
 		return 1000;
-	Claer_matrix(str1.size(), str2.size());
-	for (int i = 0; i < str1.size(); ++i)
+	Claer_matrix(n, m);
+	for (int i = 0; i < n; ++i)
 		Matrix_levenstein[i][0] = i;
-	for (int j = 0; j < str2.size(); ++j)
+	for (int j = 0; j < m; ++j)
 		Matrix_levenstein[0][j] = j;
 
-	for (int i = 1; i <= str1.size(); ++i)
+	for (int i = 1; i <= n; ++i)
 	{
-		for (int j = 1; j <= str2.size(); ++j)
+		for (int j = 1; j <= m; ++j)
 		{
-			if (str1[i] == str2[j])
+			if (str1[i - 1] == str2[j - 1])
 			{
 				Matrix_levenstein[i][j] = Matrix_levenstein[i - 1][j - 1];
 			}
 			else
 			{
-				Matrix_levenstein[i][j] = min(Matrix_levenstein[i - 1][j], min(Matrix_levenstein[i - 1][j - 1], Matrix_levenstein[i][j - 1]));
+				Matrix_levenstein[i][j] = min(Matrix_levenstein[i - 1][j], 
+					min(Matrix_levenstein[i - 1][j - 1], Matrix_levenstein[i][j - 1]));
 				Matrix_levenstein[i][j]++;
 			}
 		}
 	}
-	return Matrix_levenstein[str1.size()][str2.size()];
+	return Matrix_levenstein[n][m];
 }

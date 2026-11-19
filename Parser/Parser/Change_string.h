@@ -4,11 +4,11 @@
 // Обработка C++ / C#
 inline string change_str_cpp(string& s, int& comments)
 {
-	vector<int> Mark_char(10000);
-	const char* forbidden = "{}[]<>;";
 	int k = 0, n = s.size();
-	if (n > 10000)
+	if (n > 20000)
 		return s;
+	vector<int> Mark_char(n);
+	const char* forbidden = "{}[]<>;";
 	for (int i = 0; i < n; ++i)
 	{
 		if (s[i] == '\n' || s[i] == ' ' || s[i] == '\t' || s[i] == '\r')

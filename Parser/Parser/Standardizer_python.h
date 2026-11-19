@@ -92,6 +92,10 @@ public:
                     out += readStatement(src, i);
                     lastKeyword.clear();
                 }
+                else if (skipDotNumber(src, i)) {              // <-- math.pi -> NUM целиком
+                    out += "NUM";
+                    lastKeyword.clear();
+                }
                 else if (reserved.count(id)) {
                     out += id;
                     lastKeyword = id;
@@ -189,6 +193,17 @@ private:
             if ((c == '+' || c == '-') && (s[i - 1] == 'e' || s[i - 1] == 'E')) { ++i; continue; }
             break;                                 // знак экспоненты: 1e-5
         }
+    }
+
+    // сразу после слова идёт ".pi" (имя из numberNames)? съедаем ".pi", сдвигаем i за него
+    bool skipDotNumber(const std::string& s, size_t& i) const {
+        if (i >= s.size() || s[i] != '.') return false;
+        size_t j = i + 1;
+        const size_t start = j;
+        while (j < s.size() && (alnum(s[j]) || s[j] == '_')) ++j;
+        if (j == start || numberNames.count(s.substr(start, j - start)) == 0) return false;
+        i = j;
+        return true;
     }
 
     // префиксы строковых литералов: r, b, u, f и комбинации (регистр не важен)
