@@ -47,7 +47,7 @@ void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, ma
 	ofstream out(Folder_result + "\\" + puths[id_contest].first + " Levenstein.txt");
 	for (int i = 0; i < sol_stud.size(); i++)
 	{
-		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN[sol_stud[i].Name_compiler] && sol_stud[i].Id_stud_dist_levenstein != -1
+		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN[type_leng(sol_stud[i].Name_compiler)] && sol_stud[i].Id_stud_dist_levenstein != -1
 			&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
 		{
 			st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);

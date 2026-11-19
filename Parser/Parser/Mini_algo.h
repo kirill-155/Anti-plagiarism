@@ -177,13 +177,13 @@ string standardize(string& Code, const string& compiler) {
 
 int type_leng(string type) {
 	if (type == "C++") {
-		return 1;
+		return 0;
 	}
 	else if (type == "C#") {
-		return 2;
+		return 1;
 	}
 	else if (type == "Python") {
-		return 3;
+		return 2;
 	}
-	else return 1;
+	else return 0;
 }
