@@ -44,7 +44,7 @@ int main()
 							for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])	 // Перебираем по заданиям с конкретной буквой
 							{
 								Solution_stud& sol_con = sol_stud[id_stud_con];
-								if (sol.Name_compiler == sol_con.Name_compiler) 
+								if (sol.Name_compiler == sol_con.Name_compiler)
 								{
 									int dist = Algo_levenstein(sol.Solution, sol_con.Solution);
 									if (sol.dist_levenstein > dist)
@@ -73,3 +73,4 @@ int main()
 		}
 		write_info_cheat_stud(puths, sol_stud, id_contest);
 	}
+}
