@@ -28,7 +28,7 @@ inline string change_str_cpp(string& s, int& comments)
 			++i;
 			while (i < n && s[i] != q)
 			{
-				if (s[i] == '\\') ++i;              // экранирующая кавычка
+				if (s[i] == '\\') ++i;              // экранирующий символ
 				++i;
 			}
 		}

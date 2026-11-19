@@ -3,7 +3,6 @@
 
 class CSharpStandardizer {
 public:
-    // -------- настройки ----------
     string typePrefix = "T_";
     string funcPrefix = "f_";
     string varPrefix = "v_";
@@ -40,7 +39,7 @@ public:
     };
 
     // Имена, которые считаем числами и заменяем на NUM (Math.PI и т.п.).
-    set<string> numberNames = { "pi", "PI", "M_PI" };
+    set<string> numberNames = { "M_E", "M_PI" };
 
     // ---------- основной вход ----------
     string standardize(const string& src) {

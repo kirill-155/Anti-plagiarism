@@ -4,30 +4,6 @@
 #include "Standardizer_csh.h"
 #include "Standardizer_python.h"
 
-void Result_all_stud(
-	string Name_student,
-	vector<Solution_stud>& sol_stud,
-	vector<pair<string, int>>& All_stud)
-{
-	pair<string, int>info_one_stud;
-	info_one_stud.first = Name_student;
-	int count_accept = 0;
-	for (int i = 0; i < sol_stud.size(); i++)
-	{
-		if (sol_stud[i].verdict == "OK")
-		{
-			count_accept++;
-		}
-		if (sol_stud[i].verdict == "Coincidence" &&
-			sol_stud[i].dist_levenstein > DIST_LEVENSTEIN)
-		{
-			count_accept++;
-		}
-	}
-	info_one_stud.second = count_accept;
-	All_stud.push_back(info_one_stud);
-}
-
 string Generate_path_solution(string& Name_number_contest, string& Name_student, string& Name_tasks)
 {
 	string path = Folder_base_put + '/';
@@ -188,13 +164,26 @@ string standardize(string& Code, const string& compiler) {
 		CppStandardizer stdz_cpp;
 		return stdz_cpp.standardize(Code);
 	}
-	if (compiler == "C#") {
+	else if (compiler == "C#") {
 		CSharpStandardizer stdz_csh;
 		return stdz_csh.standardize(Code);
 	}
-	if (compiler == "Python") {
+	else if (compiler == "Python") {
 		PythonStandardizer stdz_py;
 		return stdz_py.standardize(Code);
 	}
 	return Code;
+}
+
+int type_leng(string type) {
+	if (type == "C++") {
+		return 1;
+	}
+	else if (type == "C#") {
+		return 2;
+	}
+	else if (type == "Python") {
+		return 3;
+	}
+	else return 1;
 }

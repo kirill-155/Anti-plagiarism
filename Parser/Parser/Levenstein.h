@@ -12,13 +12,13 @@ void Claer_matrix(int mi, int mj)
 	}
 }
 
-int Algo_levenstein(string str1, string str2, int limit)
+int Algo_levenstein(string str1, string str2, int type)
 {
 	int n = str1.size(), m = str2.size();
 	if (n >= Matrix_levenstein.size() || m >= Matrix_levenstein[0].size())
 		return 1000;
 	int max_len = abs(m - n);
-	if (max_len > DIST_LEVENSTEIN || max_len > limit)
+	if (max_len > DIST_LEVENSTEIN[type])
 		return 1000;
 	Claer_matrix(n, m);
 	for (int i = 0; i < n; ++i)

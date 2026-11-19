@@ -3,13 +3,11 @@
 
 class CppStandardizer {
 public:
-    // -------- настройки ----------
     string typePrefix = "T_";
     string funcPrefix = "f_";
     string varPrefix = "v_";
 
-    // Имена, которые НЕ переименовываются:
-    // ключевые слова + то, что приходит из стандартной библиотеки.
+    // ключевые слова
     set<string> reserved = {
         // ключевые слова C++20
         "alignas","alignof","and","and_eq","asm","auto","bitand","bitor","bool",
@@ -24,18 +22,15 @@ public:
         "static_cast","struct","switch","template","this","thread_local","throw",
         "true","try","typedef","typeid","typename","union","unsigned","using",
         "virtual","void","volatile","wchar_t","while","xor","xor_eq",
-        // то, что нельзя ломать
         "main","std",
-        // частые типы/имена из STL (расширяйте при необходимости)
+        // частые типы/имена из STL
         "size_t","nullptr_t","int8_t","int16_t","int32_t","int64_t",
         "uint8_t","uint16_t","uint32_t","uint64_t",
         "cout","cin","cerr","endl","string","vector","map","set","pair"
     };
 
-    // Имена, которые считаем числами и заменяем на NUM. Дополняйте при необходимости.
-    set<string> numberNames = { "pi", "M_E", "M_PI" };
+    set<string> numberNames = { "M_E", "M_PI" }; // Имена, которые считаем числами и заменяем на NUM
 
-    // ---------- основной вход ----------
     string standardize(const string& src) {
         mapping_.clear();
         counters_.clear();
@@ -70,17 +65,17 @@ public:
                 lastKeyword.clear();
             }
             else if (letter(c) || c == '_') {          // идентификаторы и ключевые слова
-                const string id = readWord(src, i);
-                if (reserved.count(id)) {
-                    out += id;
-                    lastKeyword = id;
+                const string word = readWord(src, i);
+                if (reserved.count(word)) {
+                    out += word;
+                    lastKeyword = word;
                 }
-                else if (numberNames.count(id)) {      // pi и подобные -> NUM
+                else if (numberNames.count(word)) {      // pi и подобные -> NUM
                     out += "NUM";
                     lastKeyword.clear();
                 }
                 else {
-                    out += rename(id, lastKeyword, nextNonSpace(src, i) == '(');
+                    out += rename(word, lastKeyword, nextNonSpace(src, i) == '(');
                     lastKeyword.clear();
                 }
             }
@@ -99,43 +94,44 @@ public:
 
 private:
     map<string, string> mapping_;   // old -> new
-    map<string, int>         counters_;  // prefix -> счётчик
+    map<string, int> counters_;  // prefix -> счётчик
 
-    // Новое имя: префикс по контексту + порядковый номер.
-    string rename(const string& id, const string& lastKeyword, bool looksLikeFunc) {
-        auto it = mapping_.find(id);
+    // Подбор нового имени
+    string rename(const string& word, const string& lastKeyword, bool looksLikeFunc) {
+        auto it = mapping_.find(word);
         if (it != mapping_.end())
             return it->second;                     // уже переименовывали
 
         string prefix = varPrefix;
         if (lastKeyword == "class" || lastKeyword == "struct" || lastKeyword == "union" ||
             lastKeyword == "enum" || lastKeyword == "typename" || lastKeyword == "namespace")
-            prefix = typePrefix;
-        else if (looksLikeFunc)                    // дальше идёт '(' — функция
+            prefix = typePrefix;                   // если предыдущий был одним из выбраннвх кл. слов
+        else if (looksLikeFunc)                    // если дальше идёт '(', то функция
             prefix = funcPrefix;
 
         const string newName = prefix + to_string(++counters_[prefix]);
-        mapping_[id] = newName;
+        mapping_[word] = newName;
         return newName;
     }
 
-    // -------- маленькие читатели токенов (сдвигают i за токен) ----------
-
+    // Возвращает слово
     static string readWord(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && (alnum(s[i]) || s[i] == '_')) ++i;
         return s.substr(start, i - start);
     }
 
+    // Возвращает всю строку до конца
     static string readLine(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != '\n') ++i;
         return s.substr(start, i - start);
     }
 
+    // Возвращает весь коментарий
     static string readComment(const string& s, size_t& i) {
         const size_t start = i;
-        if (s[i + 1] == '/') {                     // // ... до конца строки
+        if (s[i + 1] == '/') {                     // // ... 
             while (i < s.size() && s[i] != '\n') ++i;
         }
         else {                                     // /* ... */
@@ -146,16 +142,17 @@ private:
         return s.substr(start, i - start);
     }
 
+    // Пропускает строку ("типо такую")
     static void skipString(const string& s, size_t& i) {
         const char q = s[i++];
         while (i < s.size() && s[i] != q) {
-            if (s[i] == '\\') ++i;                 // экранированный символ
+            if (s[i] == '\\') ++i;                 // экранирующий символ
             ++i;
         }
-        if (i < s.size()) ++i;                     // закрывающая кавычка
+        if (i < s.size()) ++i;                   
     }
 
-    // 123, 3.14f, 0x1F, 1'000, 10ULL, 1e-5
+    // Пропускает числа (123, 3.14f, 0x1F, 1'000, 10ULL, 1e-5)
     static void skipNumber(const string& s, size_t& i) {
         while (i < s.size()) {
             const char c = s[i];
@@ -164,12 +161,12 @@ private:
                 (s[i - 1] == 'e' || s[i - 1] == 'E' || s[i - 1] == 'p' || s[i - 1] == 'P'))
             {
                 ++i; continue;
-            }                     // знак экспоненты: 1e-5
+            }                    
             break;
         }
     }
 
-    // первый непробельный символ начиная с i ('\0', если строка кончилась)
+    // Возвращает первый непробельный символ начиная с i ('\0', если строка кончилась)
     static char nextNonSpace(const string& s, size_t i) {
         while (i < s.size() && space(s[i])) ++i;
         return i < s.size() ? s[i] : '\0';

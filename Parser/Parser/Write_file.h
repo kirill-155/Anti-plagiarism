@@ -44,15 +44,15 @@ void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, ma
 {
 	sort(sol_stud.begin(), sol_stud.end(), dist_lev_sort);
 	set<string> st;
-	ofstream out(Folder_result + "\\" + puths[id_contest].first + " Levenstein " + to_string(DIST_LEVENSTEIN) + ".txt");
+	ofstream out(Folder_result + "\\" + puths[id_contest].first + " Levenstein.txt");
 	for (int i = 0; i < sol_stud.size(); i++)
 	{
-		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN && sol_stud[i].Id_stud_dist_levenstein != -1
+		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN[sol_stud[i].Name_compiler] && sol_stud[i].Id_stud_dist_levenstein != -1
 			&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
 		{
 			st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
 			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
-				<< sol_stud[i].Name_dist_levenstein_package << "\t\t" << sol_stud[i].dist_levenstein << "\n";
+				<< sol_stud[i].Name_dist_levenstein_package << "\t\t" << sol_stud[i].dist_levenstein << "\t" << sol_stud[i].Name_compiler << "\n";
 		}
 	}
 	out.close();

@@ -46,8 +46,7 @@ int main()
 								Solution_stud& sol_con = sol_stud[id_stud_con];
 								if (sol.Name_compiler == sol_con.Name_compiler)
 								{
-									int dist = Algo_levenstein(sol.Solution, sol_con.Solution, 
-										min(sol.dist_levenstein, sol_con.dist_levenstein));
+									int dist = Algo_levenstein(sol.Solution, sol_con.Solution, type_leng(sol.Name_compiler));
 									if (sol.dist_levenstein > dist)
 									{
 										sol.dist_levenstein = dist;
