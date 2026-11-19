@@ -65,7 +65,7 @@ int main()
 							}
 						}
 						sol_stud.push_back(sol);
-						//std::cout << path << "\n";
+						//cout << path << "\n";
 					}
 					in.close();
 				}

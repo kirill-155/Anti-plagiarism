@@ -2,6 +2,7 @@
 #include "Header.h"
 #include "Standardizer_cpp.h"
 #include "Standardizer_csh.h"
+#include "Standardizer_python.h"
 
 void Result_all_stud(
 	string Name_student,
@@ -117,10 +118,10 @@ string identif_compil(const string& code) {
 	int n = code.size();
 
 	auto match = [&](int i, const char* p, int len) {
-		return i + len <= n && std::memcmp(d + i, p, len) == 0;
+		return i + len <= n && memcmp(d + i, p, len) == 0;
 		};
 
-	int limit = std::min(n, 500);
+	int limit = min(n, 500);
 	for (int i = 0; i < limit && cpp < 4 && cs < 4 && py < 4; ++i) {
 		switch (d[i]) {
 		case '#':
@@ -190,6 +191,10 @@ string standardize(string& Code, const string& compiler) {
 	if (compiler == "C#") {
 		CSharpStandardizer stdz_csh;
 		return stdz_csh.standardize(Code);
+	}
+	if (compiler == "Python") {
+		PythonStandardizer stdz_py;
+		return stdz_py.standardize(Code);
 	}
 	return Code;
 }

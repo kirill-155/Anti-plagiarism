@@ -28,7 +28,7 @@ void scanf_file_tasks(string filename, vector<string>& Name_tasks)
 void scanf_file_student(string filename, vector<string>& Name_student) 
 {
 	string student;
-	ifstream in(filename, std::ios_base::binary);
+	ifstream in(filename, ios_base::binary);
 	while (getline(in, student)) 
 	{
 		string name="";

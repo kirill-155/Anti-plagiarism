@@ -1,19 +1,16 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <cctype>
+#include "Header.h"
 
 class CppStandardizer {
 public:
     // -------- настройки ----------
-    std::string typePrefix = "T_";
-    std::string funcPrefix = "f_";
-    std::string varPrefix = "v_";
+    string typePrefix = "T_";
+    string funcPrefix = "f_";
+    string varPrefix = "v_";
 
     // »мена, которые Ќ≈ переименовываютс€:
     // ключевые слова + то, что приходит из стандартной библиотеки.
-    std::unordered_set<std::string> reserved = {
+    set<string> reserved = {
         // ключевые слова C++20
         "alignas","alignof","and","and_eq","asm","auto","bitand","bitor","bool",
         "break","case","catch","char","char8_t","char16_t","char32_t","class",
@@ -35,142 +32,151 @@ public:
         "cout","cin","cerr","endl","string","vector","map","set","pair"
     };
 
+    // »мена, которые считаем числами и замен€ем на NUM. ƒополн€йте при необходимости.
+    set<string> numberNames = { "pi", "M_E", "M_PI" };
+
     // ---------- основной вход ----------
-    std::string standardize(const std::string& src) {
+    string standardize(const string& src) {
         mapping_.clear();
         counters_.clear();
 
-        std::string out;
+        string out;
         out.reserve(src.size());
 
-        size_t i = 0, n = src.size();
-        std::string lastKeyword;   // последнее встреченное ключевое слово
+        size_t i = 0;
+        string lastKeyword;   // последнее ключевое слово Ч дл€ выбора префикса
 
-        while (i < n) {
+        while (i < src.size()) {
             const char c = src[i];
 
-            // пробелы сохран€ем как есть
-            if (std::isspace(static_cast<unsigned char>(c))) {
-                out += src[i++];
-                continue;
+            if (space(c)) {                            // пробелы Ч как есть
+                out += c;
+                ++i;
             }
-
-            // // комментарий до конца строки
-            if (c == '/' && i + 1 < n && src[i + 1] == '/') {
-                while (i < n && src[i] != '\n') out += src[i++];
-                continue;
+            else if (c == '/' && i + 1 < src.size() && (src[i + 1] == '/' || src[i + 1] == '*')) {
+                out += readComment(src, i);            // комментарии Ч целиком
             }
-            // /* блочный комментарий */
-            if (c == '/' && i + 1 < n && src[i + 1] == '*') {
-                out += src[i++]; out += src[i++];
-                while (i < n) {
-                    if (src[i] == '*' && i + 1 < n && src[i + 1] == '/') {
-                        out += src[i++]; out += src[i++];
-                        break;
-                    }
-                    out += src[i++];
-                }
-                continue;
+            else if (c == '"' || c == '\'') {          // строки и символы -> STR
+                skipString(src, i);
+                out += "STR";
+                lastKeyword.clear();
             }
-
-            // строковый / символьный литерал (с escape-последовательност€ми)
-            if (c == '"' || c == '\'') {
-                const char q = c;
-                out += src[i++];
-                while (i < n) {
-                    if (src[i] == '\\' && i + 1 < n) {
-                        out += src[i++]; out += src[i++];
-                    }
-                    else if (src[i] == q) {
-                        out += src[i++];
-                        break;
-                    }
-                    else {
-                        out += src[i++];
-                    }
-                }
-                continue;
+            else if (c == '#') {                       // препроцессор Ч строка целиком
+                out += readLine(src, i);
             }
-
-            // препроцессор: пропускаем всю строку
-            if (c == '#') {
-                while (i < n && src[i] != '\n') out += src[i++];
-                continue;
+            else if (digit(c)) {                       // числа -> NUM
+                skipNumber(src, i);
+                out += "NUM";
+                lastKeyword.clear();
             }
-
-            // идентификатор / ключевое слово
-            if (std::isalpha(static_cast<unsigned char>(c)) || c == '_') {
-                const size_t start = i;
-                while (i < n &&
-                    (std::isalnum(static_cast<unsigned char>(src[i])) || src[i] == '_'))
-                    ++i;
-                const std::string id = src.substr(start, i - start);
-
+            else if (letter(c) || c == '_') {          // идентификаторы и ключевые слова
+                const string id = readWord(src, i);
                 if (reserved.count(id)) {
                     out += id;
-                    lastKeyword = id;          // дл€ контекста (class / struct / int / ...)
+                    lastKeyword = id;
                 }
-                else {
-                    out += renamed(id, lastKeyword, src, i);
+                else if (numberNames.count(id)) {      // pi и подобные -> NUM
+                    out += "NUM";
                     lastKeyword.clear();
                 }
-                continue;
+                else {
+                    out += rename(id, lastKeyword, nextNonSpace(src, i) == '(');
+                    lastKeyword.clear();
+                }
             }
-
-            // числа (упрощЄнно; суффиксы ULL/_ms попадут в следующий токен-идентификатор)
-            if (std::isdigit(static_cast<unsigned char>(c))) {
-                while (i < n && (std::isalnum(static_cast<unsigned char>(src[i])) ||
-                    src[i] == '.' || src[i] == '\''))
-                    out += src[i++];
-                lastKeyword.clear();
-                continue;
+            else {                                     // операторы, скобки, зап€тые...
+                out += c;
+                ++i;
+                // сбиваем контекст на разделител€х, но не на пробелах/скобках
+                if (c == ';' || c == '=' || c == ',' || c == ')' || c == '{' || c == '}')
+                    lastKeyword.clear();
             }
-
-            // прочие символы (операторы, скобки, зап€тые, точки и т.п.)
-            const char p = src[i++];
-            out += p;
-            // Ђсбиваемї контекст на операторах-разделител€х, но не на пробелах/скобках
-            if (p == ';' || p == '=' || p == ',' || p == ')' || p == '{' || p == '}')
-                lastKeyword.clear();
         }
         return out;
     }
 
-    const std::unordered_map<std::string, std::string>& mapping() const { return mapping_; }
+    const map<string, string>& mapping() const { return mapping_; }
 
 private:
-    std::unordered_map<std::string, std::string> mapping_;   // old -> new
-    std::unordered_map<std::string, int>         counters_;  // prefix -> счЄтчик
+    map<string, string> mapping_;   // old -> new
+    map<string, int>         counters_;  // prefix -> счЄтчик
 
-    // ѕодбираем префикс по контексту и, если им€ новое, генерируем новый идентификатор.
-    std::string renamed(const std::string& id,
-        const std::string& lastKeyword,
-        const std::string& src,
-        size_t posAfterId) {
+    // Ќовое им€: префикс по контексту + пор€дковый номер.
+    string rename(const string& id, const string& lastKeyword, bool looksLikeFunc) {
         auto it = mapping_.find(id);
-        if (it != mapping_.end()) return it->second;   // уже знаем это им€
+        if (it != mapping_.end())
+            return it->second;                     // уже переименовывали
 
-        std::string prefix = choosePrefix(lastKeyword, src, posAfterId);
-        const std::string newName = prefix + std::to_string(++counters_[prefix]);
-        mapping_.emplace(id, newName);
+        string prefix = varPrefix;
+        if (lastKeyword == "class" || lastKeyword == "struct" || lastKeyword == "union" ||
+            lastKeyword == "enum" || lastKeyword == "typename" || lastKeyword == "namespace")
+            prefix = typePrefix;
+        else if (looksLikeFunc)                    // дальше идЄт '(' Ч функци€
+            prefix = funcPrefix;
+
+        const string newName = prefix + to_string(++counters_[prefix]);
+        mapping_[id] = newName;
         return newName;
     }
 
-    std::string choosePrefix(const std::string& lastKeyword,
-        const std::string& src,
-        size_t posAfterId) const {
-        // 1) контекст типа
-        if (lastKeyword == "class" || lastKeyword == "struct" ||
-            lastKeyword == "union" || lastKeyword == "enum" ||
-            lastKeyword == "typename" || lastKeyword == "namespace")
-            return typePrefix;
+    // -------- маленькие читатели токенов (сдвигают i за токен) ----------
 
-        // 2) загл€дываем вперЄд: если дальше идЄт '(', это вызов/объ€вление функции
-        size_t j = posAfterId;
-        while (j < src.size() && std::isspace(static_cast<unsigned char>(src[j]))) ++j;
-        if (j < src.size() && src[j] == '(') return funcPrefix;
-
-        // 3) всЄ остальное Ч переменна€
-        return varPrefix;
+    static string readWord(const string& s, size_t& i) {
+        const size_t start = i;
+        while (i < s.size() && (alnum(s[i]) || s[i] == '_')) ++i;
+        return s.substr(start, i - start);
     }
+
+    static string readLine(const string& s, size_t& i) {
+        const size_t start = i;
+        while (i < s.size() && s[i] != '\n') ++i;
+        return s.substr(start, i - start);
+    }
+
+    static string readComment(const string& s, size_t& i) {
+        const size_t start = i;
+        if (s[i + 1] == '/') {                     // // ... до конца строки
+            while (i < s.size() && s[i] != '\n') ++i;
+        }
+        else {                                     // /* ... */
+            i += 2;
+            while (i < s.size() && !(s[i] == '*' && i + 1 < s.size() && s[i + 1] == '/')) ++i;
+            if (i < s.size()) i += 2;
+        }
+        return s.substr(start, i - start);
+    }
+
+    static void skipString(const string& s, size_t& i) {
+        const char q = s[i++];
+        while (i < s.size() && s[i] != q) {
+            if (s[i] == '\\') ++i;                 // экранированный символ
+            ++i;
+        }
+        if (i < s.size()) ++i;                     // закрывающа€ кавычка
+    }
+
+    // 123, 3.14f, 0x1F, 1'000, 10ULL, 1e-5
+    static void skipNumber(const string& s, size_t& i) {
+        while (i < s.size()) {
+            const char c = s[i];
+            if (alnum(c) || c == '.' || c == '\'') { ++i; continue; }
+            if ((c == '+' || c == '-') &&
+                (s[i - 1] == 'e' || s[i - 1] == 'E' || s[i - 1] == 'p' || s[i - 1] == 'P'))
+            {
+                ++i; continue;
+            }                     // знак экспоненты: 1e-5
+            break;
+        }
+    }
+
+    // первый непробельный символ начина€ с i ('\0', если строка кончилась)
+    static char nextNonSpace(const string& s, size_t i) {
+        while (i < s.size() && space(s[i])) ++i;
+        return i < s.size() ? s[i] : '\0';
+    }
+
+    static bool space(char c) { return isspace(static_cast<unsigned char>(c)) != 0; }
+    static bool digit(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
+    static bool letter(char c) { return isalpha(static_cast<unsigned char>(c)) != 0; }
+    static bool alnum(char c) { return isalnum(static_cast<unsigned char>(c)) != 0; }
 };

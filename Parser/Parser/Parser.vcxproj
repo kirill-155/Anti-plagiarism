@@ -139,6 +139,7 @@
     <ClInclude Include="Scanf_file.h" />
     <ClInclude Include="Standardizer_cpp.h" />
     <ClInclude Include="Standardizer_csh.h" />
+    <ClInclude Include="Standardizer_python.h" />
     <ClInclude Include="Write_file.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

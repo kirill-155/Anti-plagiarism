@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <regex>
 #include <set>
+#include <cctype>
 
 using namespace std;
 namespace fs = filesystem;

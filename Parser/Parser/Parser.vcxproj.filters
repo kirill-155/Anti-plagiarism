@@ -44,5 +44,8 @@
     <ClInclude Include="Standardizer_csh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Standardizer_python.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

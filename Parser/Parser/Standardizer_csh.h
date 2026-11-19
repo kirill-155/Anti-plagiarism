@@ -1,18 +1,16 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <cctype>
+#include "Header.h"
 
 class CSharpStandardizer {
 public:
-    std::string typePrefix = "T_";
-    std::string funcPrefix = "f_";
-    std::string varPrefix = "v_";
+    // -------- настройки ----------
+    string typePrefix = "T_";
+    string funcPrefix = "f_";
+    string varPrefix = "v_";
 
     //  лючевые слова C# + контекстные ключевые слова + платформенные имена,
     // которые переименовывать нельз€.
-    std::unordered_set<std::string> reserved = {
+    set<string> reserved = {
         // зарезервированные ключевые слова
         "abstract","as","base","bool","break","byte","case","catch","char",
         "checked","class","const","continue","decimal","default","delegate",
@@ -41,209 +39,211 @@ public:
         "TestMethod","Fact","Theory","InlineData"
     };
 
-    // ------------------------------------------------------------------
-    std::string standardize(const std::string& src) {
+    // »мена, которые считаем числами и замен€ем на NUM (Math.PI и т.п.).
+    set<string> numberNames = { "pi", "PI", "M_PI" };
+
+    // ---------- основной вход ----------
+    string standardize(const string& src) {
         mapping_.clear();
         counters_.clear();
 
-        std::string out;
+        string out;
         out.reserve(src.size());
 
-        size_t i = 0, n = src.size();
-        std::string lastKeyword;
+        size_t i = 0;
+        string lastKeyword;   // последнее ключевое слово Ч дл€ выбора префикса
 
-        while (i < n) {
+        while (i < src.size()) {
             const char c = src[i];
 
-            // пробелы как есть
-            if (std::isspace(static_cast<unsigned char>(c))) { out += src[i++]; continue; }
-
-            // // комментарий
-            if (c == '/' && i + 1 < n && src[i + 1] == '/') {
-                while (i < n && src[i] != '\n') out += src[i++];
-                continue;
+            if (space(c)) {                            // пробелы Ч как есть
+                out += c;
+                ++i;
             }
-            // /* ... */
-            if (c == '/' && i + 1 < n && src[i + 1] == '*') {
-                out += src[i++]; out += src[i++];
-                while (i < n) {
-                    if (src[i] == '*' && i + 1 < n && src[i + 1] == '/') {
-                        out += src[i++]; out += src[i++]; break;
-                    }
-                    out += src[i++];
-                }
-                continue;
+            else if (c == '/' && i + 1 < src.size() && (src[i + 1] == '/' || src[i + 1] == '*')) {
+                out += readComment(src, i);            // комментарии Ч целиком
             }
-
-            // ---------- строки ----------
-            // raw string:  """..."""
-            if (c == '"' && i + 2 < n && src[i + 1] == '"' && src[i + 2] == '"') {
-                size_t q = 0;
-                while (i + q < n && src[i + q] == '"') ++q;
-                out.append(src, i, q); i += q;
-                std::string close(q, '"');
-                while (i < n) {
-                    if (src.compare(i, q, close) == 0) {
-                        out.append(src, i, q); i += q; break;
-                    }
-                    out += src[i++];
-                }
-                continue;
+            else if (startsString(src, i)) {           // любые строки -> STR
+                skipString(src, i);
+                out += "STR";
+                lastKeyword.clear();
             }
-
-            // @"..." (verbatim) либо @identifier
-            if (c == '@' && i + 1 < n) {
-                if (src[i + 1] == '"') {
-                    out += src[i++]; out += src[i++];
-                    while (i < n) {
-                        if (src[i] == '"') {
-                            if (i + 1 < n && src[i + 1] == '"') { out += src[i++]; out += src[i++]; }
-                            else { out += src[i++]; break; }
-                        }
-                        else out += src[i++];
-                    }
-                    continue;
-                }
-                if (std::isalpha(static_cast<unsigned char>(src[i + 1])) || src[i + 1] == '_') {
-                    out += src[i++]; // '@'
-                    const size_t start = i;
-                    while (i < n && (std::isalnum(static_cast<unsigned char>(src[i])) || src[i] == '_'))
-                        ++i;
-                    const std::string id = src.substr(start, i - start);
-                    // force-rename: @identifier может совпадать с ключевым словом
-                    out += renamed(id, lastKeyword, src, i);
-                    lastKeyword.clear();
-                    continue;
-                }
-                out += src[i++]; continue;
+            else if (c == '#') {                       // #if / #region / #pragma ...
+                out += readLine(src, i);
             }
-
-            // $"..." и $@"..." Ч упрощЄнно пропускаем целиком
-            if (c == '$' && i + 1 < n) {
-                size_t j = i + 1; bool verbatim = false;
-                if (src[j] == '@') { verbatim = true; ++j; }
-                if (j < n && src[j] == '"') {
-                    out.append(src, i, j - i + 1);
-                    i = j + 1;
-                    while (i < n) {
-                        if (!verbatim && src[i] == '\\' && i + 1 < n) { out += src[i++]; out += src[i++]; }
-                        else if (verbatim && src[i] == '"' && i + 1 < n && src[i + 1] == '"') { out += src[i++]; out += src[i++]; }
-                        else if (src[i] == '"') { out += src[i++]; break; }
-                        else out += src[i++];
-                    }
-                    continue;
-                }
+            else if (isWordAt(src, i, "using") && nextNonSpace(src, i + 5) != '(') {
+                out += readStatement(src, i);          // using X.Y.Z; Ч целиком (не using-блок)
+                lastKeyword.clear();
             }
-
-            // обычна€ строка
-            if (c == '"') {
-                out += src[i++];
-                while (i < n) {
-                    if (src[i] == '\\' && i + 1 < n) { out += src[i++]; out += src[i++]; }
-                    else if (src[i] == '"') { out += src[i++]; break; }
-                    else out += src[i++];
-                }
-                continue;
+            else if (c == '@' && i + 1 < src.size() && (letter(src[i + 1]) || src[i + 1] == '_')) {
+                ++i;                                   // @identifier: переименовываем даже ключевое слово
+                const string id = readWord(src, i);
+                out += '@';
+                out += rename(id, lastKeyword, nextNonSpace(src, i) == '(');
+                lastKeyword.clear();
             }
-
-            // символьный литерал
-            if (c == '\'') {
-                out += src[i++];
-                while (i < n) {
-                    if (src[i] == '\\' && i + 1 < n) { out += src[i++]; out += src[i++]; }
-                    else if (src[i] == '\'') { out += src[i++]; break; }
-                    else out += src[i++];
-                }
-                continue;
+            else if (digit(c)) {                       // числа -> NUM
+                skipNumber(src, i);
+                out += "NUM";
+                lastKeyword.clear();
             }
-
-            // препроцессор #if / #region / #pragma / #define ...
-            if (c == '#') {
-                while (i < n && src[i] != '\n') out += src[i++];
-                continue;
-            }
-
-            // using-директива: using X.Y.Z;   (но не using (...) и не using X = ...;)
-            if (c == 'u' && i + 5 <= n && src.compare(i, 5, "using") == 0 &&
-                (i + 5 == n || (!std::isalnum(static_cast<unsigned char>(src[i + 5])) && src[i + 5] != '_'))) {
-                size_t j = i + 5;
-                while (j < n && std::isspace(static_cast<unsigned char>(src[j]))) ++j;
-                if (j < n && src[j] != '(') {
-                    while (i < n && src[i] != ';' && src[i] != '\n') out += src[i++];
-                    if (i < n && src[i] == ';') out += src[i++];
-                    lastKeyword.clear();
-                    continue;
-                }
-            }
-
-            // ---------- идентификаторы ----------
-            if (std::isalpha(static_cast<unsigned char>(c)) || c == '_') {
-                const size_t start = i;
-                while (i < n && (std::isalnum(static_cast<unsigned char>(src[i])) || src[i] == '_'))
-                    ++i;
-                const std::string id = src.substr(start, i - start);
-
+            else if (letter(c) || c == '_') {          // идентификаторы и ключевые слова
+                const string id = readWord(src, i);
                 if (reserved.count(id)) {
                     out += id;
                     lastKeyword = id;
                 }
-                else {
-                    out += renamed(id, lastKeyword, src, i);
+                else if (numberNames.count(id)) {      // PI и подобные -> NUM
+                    out += "NUM";
                     lastKeyword.clear();
                 }
-                continue;
+                else {
+                    out += rename(id, lastKeyword, nextNonSpace(src, i) == '(');
+                    lastKeyword.clear();
+                }
             }
-
-            // числа (упрощЄнно)
-            if (std::isdigit(static_cast<unsigned char>(c))) {
-                while (i < n && (std::isalnum(static_cast<unsigned char>(src[i])) ||
-                    src[i] == '.' || src[i] == '_' ||
-                    ((src[i] == '+' || src[i] == '-') && i > 0 &&
-                        (src[i - 1] == 'e' || src[i - 1] == 'E'))))
-                    out += src[i++];
-                lastKeyword.clear();
-                continue;
+            else {                                     // операторы, скобки, зап€тые...
+                out += c;
+                ++i;
+                if (c == ';' || c == '=' || c == ',' || c == ')' || c == '{' || c == '}')
+                    lastKeyword.clear();
             }
-
-            // прочие символы (операторы, скобки, зап€тые, точки)
-            const char p = src[i++];
-            out += p;
-            if (p == ';' || p == '=' || p == ',' || p == ')' || p == '{' || p == '}')
-                lastKeyword.clear();
         }
         return out;
     }
 
-    const std::unordered_map<std::string, std::string>& mapping() const { return mapping_; }
+    const map<string, string>& mapping() const { return mapping_; }
 
 private:
-    std::unordered_map<std::string, std::string> mapping_;   // old -> new
-    std::unordered_map<std::string, int>         counters_;  // prefix -> counter
+    map<string, string> mapping_;   // old -> new
+    map<string, int>         counters_;  // prefix -> счЄтчик
 
-    std::string renamed(const std::string& id, const std::string& lastKeyword,
-        const std::string& src, size_t posAfterId) {
+    // Ќовое им€: префикс по контексту + пор€дковый номер.
+    string rename(const string& id, const string& lastKeyword, bool looksLikeFunc) {
         auto it = mapping_.find(id);
-        if (it != mapping_.end()) return it->second;
+        if (it != mapping_.end())
+            return it->second;                     // уже переименовывали
 
-        const std::string prefix = choosePrefix(lastKeyword, src, posAfterId);
-        const std::string newName = prefix + std::to_string(++counters_[prefix]);
-        mapping_.emplace(id, newName);
+        string prefix = varPrefix;
+        if (lastKeyword == "class" || lastKeyword == "struct" || lastKeyword == "interface" ||
+            lastKeyword == "enum" || lastKeyword == "record" || lastKeyword == "namespace" ||
+            lastKeyword == "delegate" || lastKeyword == "event")
+            prefix = typePrefix;
+        else if (looksLikeFunc)                    // дальше идЄт '(' Ч метод
+            prefix = funcPrefix;
+
+        const string newName = prefix + to_string(++counters_[prefix]);
+        mapping_[id] = newName;
         return newName;
     }
 
-    std::string choosePrefix(const std::string& lastKeyword,
-        const std::string& src, size_t posAfterId) const {
-        if (lastKeyword == "class" || lastKeyword == "struct" ||
-            lastKeyword == "interface" || lastKeyword == "enum" ||
-            lastKeyword == "record" || lastKeyword == "namespace" ||
-            lastKeyword == "delegate" || lastKeyword == "event")
-            return typePrefix;
+    // -------- читатели токенов (сдвигают i за токен) ----------
 
-        // смотрим вперЄд: если идЄт '(' Ч это метод
-        size_t j = posAfterId;
-        while (j < src.size() && std::isspace(static_cast<unsigned char>(src[j]))) ++j;
-        if (j < src.size() && src[j] == '(') return funcPrefix;
-
-        return varPrefix;
+    static string readWord(const string& s, size_t& i) {
+        const size_t start = i;
+        while (i < s.size() && (alnum(s[i]) || s[i] == '_')) ++i;
+        return s.substr(start, i - start);
     }
+
+    static string readLine(const string& s, size_t& i) {
+        const size_t start = i;
+        while (i < s.size() && s[i] != '\n') ++i;
+        return s.substr(start, i - start);
+    }
+
+    // строка до ';' или конца строки (';' тоже забираем)
+    static string readStatement(const string& s, size_t& i) {
+        const size_t start = i;
+        while (i < s.size() && s[i] != ';' && s[i] != '\n') ++i;
+        if (i < s.size() && s[i] == ';') ++i;
+        return s.substr(start, i - start);
+    }
+
+    static string readComment(const string& s, size_t& i) {
+        const size_t start = i;
+        if (s[i + 1] == '/') {                     // // ... до конца строки
+            while (i < s.size() && s[i] != '\n') ++i;
+        }
+        else {                                     // /* ... */
+            i += 2;
+            while (i < s.size() && !(s[i] == '*' && i + 1 < s.size() && s[i + 1] == '/')) ++i;
+            if (i < s.size()) i += 2;
+        }
+        return s.substr(start, i - start);
+    }
+
+    // начинаетс€ ли строковый литерал: "...", '...', @"...", $"...", $@"...", @$"..."
+    static bool startsString(const string& s, size_t i) {
+        const char c = s[i];
+        if (c == '"' || c == '\'') return true;
+        if (c != '@' && c != '$') return false;
+        size_t j = i + 1;
+        if (j < s.size() && (s[j] == '@' || s[j] == '$')) ++j;   // $@ или @$
+        return j < s.size() && s[j] == '"';
+    }
+
+    // пропускает строку любого вида (выражени€ внутри $"..." упрощЄнно не разбираем)
+    static void skipString(const string& s, size_t& i) {
+        bool verbatim = false;
+        while (i < s.size() && (s[i] == '$' || s[i] == '@')) {   // префиксы
+            if (s[i] == '@') verbatim = true;
+            ++i;
+        }
+        if (i >= s.size()) return;
+        if (s[i] == '\'') { skipQuoted(s, i, '\'', false); return; }   // символьный литерал
+
+        if (!verbatim && i + 2 < s.size() && s[i + 1] == '"' && s[i + 2] == '"') {   // raw-строка
+            size_t q = 0;
+            while (i + q < s.size() && s[i + q] == '"') ++q;     // сколько кавычек открыло
+            const string close(q, '"');
+            i += q;
+            while (i < s.size()) {
+                if (s.compare(i, q, close) == 0) { i += q; return; }
+                ++i;
+            }
+            return;
+        }
+        skipQuoted(s, i, '"', verbatim);
+    }
+
+    // обычна€ строка с escape или verbatim с удвоенными кавычками
+    static void skipQuoted(const string& s, size_t& i, char q, bool verbatim) {
+        ++i;                                       // открывающа€ кавычка
+        while (i < s.size()) {
+            if (s[i] == q) {
+                if (verbatim && i + 1 < s.size() && s[i + 1] == q) { i += 2; continue; }  // ""
+                ++i;                               // закрывающа€
+                return;
+            }
+            if (!verbatim && s[i] == '\\') ++i;    // escape
+            ++i;
+        }
+    }
+
+    // 123, 3.14, 0xFF, 1_000, 1.5e-3, 2.5m, 10UL
+    static void skipNumber(const string& s, size_t& i) {
+        while (i < s.size()) {
+            const char c = s[i];
+            if (alnum(c) || c == '.' || c == '_') { ++i; continue; }
+            if ((c == '+' || c == '-') && (s[i - 1] == 'e' || s[i - 1] == 'E')) { ++i; continue; }
+            break;
+        }
+    }
+
+    // слово w ровно в позиции i (не часть более длинного идентификатора)
+    static bool isWordAt(const string& s, size_t i, const string& w) {
+        if (s.compare(i, w.size(), w) != 0) return false;
+        const size_t j = i + w.size();
+        return j >= s.size() || (!alnum(s[j]) && s[j] != '_');
+    }
+
+    static char nextNonSpace(const string& s, size_t i) {
+        while (i < s.size() && space(s[i])) ++i;
+        return i < s.size() ? s[i] : '\0';
+    }
+
+    static bool space(char c) { return isspace(static_cast<unsigned char>(c)) != 0; }
+    static bool digit(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
+    static bool letter(char c) { return isalpha(static_cast<unsigned char>(c)) != 0; }
+    static bool alnum(char c) { return isalnum(static_cast<unsigned char>(c)) != 0; }
 };
