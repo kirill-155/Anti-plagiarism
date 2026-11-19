@@ -37,13 +37,14 @@ int main()
 						sol.Name_problem = task;
 						sol.dist_levenstein = 1000;
 						sol.verdict = "Ok";
-						sol.Name_compiler = (is_valid_cpp(sol.Name_problem) ? "C++" : (is_valid_csh(sol.Name_problem) ? "C#" : ""));
-						string Cod = sol.Solution;
+						//sol.Name_compiler = (is_valid_cpp(sol.Name_problem) ? "C++" : (is_valid_csh(sol.Name_problem) ? "C#" : ""));
+						string Code = sol.Solution;
+						sol.Name_compiler = identif_compil(Code);
 						if (sol.Name_compiler == "C++")
-							Cod = stdz_cpp.standardize(Cod);
+							Code = stdz_cpp.standardize(Code);
 						if (sol.Name_compiler == "C#")
-							Cod = stdz_csh.standardize(Cod);
-						sol.Solution = change_str(Cod, sol.Number_comments);
+							Code = stdz_csh.standardize(Code);
+						sol.Solution = change_str(Code, sol.Number_comments);
 						for (int id_stud_con = 0; id_stud_con < puths[id_contest].second.size(); id_stud_con++)
 						{
 							for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])
@@ -59,10 +60,10 @@ int main()
 										while (getline(in_con, str_con)) {
 											sol_con += str_con + '\n';
 										}
-										string Cod_con = (is_valid_cpp(task_con) ? stdz_cpp.standardize(sol_con) : 
+										string Code_con = (is_valid_cpp(task_con) ? stdz_cpp.standardize(sol_con) : 
 											(is_valid_csh(sol.Name_problem) ? stdz_csh.standardize(sol.Solution) : sol_con));
 										int com;
-										sol_con = change_str(Cod_con, com);
+										sol_con = change_str(Code_con, com);
 										int dist = Algo_levenstein(sol.Solution, sol_con);
 										if (sol.dist_levenstein > dist)
 										{
