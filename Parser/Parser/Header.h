@@ -24,7 +24,7 @@ string Folder_base_stud = "stud_work\\";					    //
 string Folder_result = "..\\..\\..\\Списки списавших\\submissions1"; // Корневая папка результатов
 
 string Nick_name_coach = "Kirill-_-";
-const vector<int> DIST_LEVENSTEIN = { 5, 5, 5 };				// Пределы для C++, C#, Python
+const vector<int> DIST_LEVENSTEIN = { 5, 6, 3 };				// Пределы для C++, C#, Python
 const int NUM_COMMENTS = 0;
 bool Flag_ValidOkOrIgnor = false;			  // Cчитывать только Ok или Ignor
 
