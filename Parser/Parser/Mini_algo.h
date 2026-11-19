@@ -119,7 +119,7 @@ string identif_compil(const string& code) {
 		};
 
 	int limit = std::min(n, 500);
-	for (size_t i = 0; i < limit || cpp < 4 || cs < 4 || py < 4; ++i) {
+	for (int i = 0; i < limit && cpp < 4 && cs < 4 && py < 4; ++i) {
 		switch (d[i]) {
 		case '#':
 			if (match(i, "#include", 8))              cpp += 5;

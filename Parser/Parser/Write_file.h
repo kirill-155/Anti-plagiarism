@@ -81,8 +81,9 @@ void write_info_cheat_stud_comments(vector<pair<string, vector<pair<string, map<
 // Вывод результатов.
 void write_info_cheat_stud(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int id_contest)
 {
-	write_info_cheat_stud_levenstein(puths, sol_stud, id_contest);
+	fs::create_directories(Folder_result);
 
+	write_info_cheat_stud_levenstein(puths, sol_stud, id_contest);
 	write_info_cheat_stud_comments(puths, sol_stud, id_contest);
 }
 
