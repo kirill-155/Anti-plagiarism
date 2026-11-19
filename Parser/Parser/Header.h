@@ -29,17 +29,16 @@ bool Flag_ValidOkOrIgnor = false;			  // Cчитывать только Ok или Ignor
 
 struct Solution_stud{
 	string Name_contest = ""; 				  // Название контеста
-	string Name_problem = "";				  // Название файла
-	string Name_package = "";				  // 
-	string Name_compiler = "";				  // Компилятор
+	string Name_package = "";				  // Название файла
+	string Name_compiler = "";				  // Название языка на котором написан код
 	string Name_stud = "";					  // Имя студента
 	string Solution = "";					  // Код
 	string Date = "";						  // Дата
 	int Time = 0;							  // Время посылки
 	string verdict = "";					  // Вердикт
 	int dist_levenstein = 0;				  // Расстояние Левенштейна
-	string Name_stud_dist_levenstein = "";	  // Имя студента наименьшего расстояния Левенштейна
-	string Name_dist_levenstein_package = ""; // Название задачи наименьшего расстояния Левенштейна
-	int Name_dist_levenstein_num = -1; 		  // Порядковый номер студента с похожим решением
+	string Name_stud_dist_levenstein = "";	  // Имя студента с наименьшим расстоянием Левенштейна
+	string Name_dist_levenstein_package = ""; // Название задачи с наименьшим расстоянием Левенштейна
+	int Id_stud_dist_levenstein = -1; 		  // Порядковый номер студента с похожим решением
 	int Number_comments = 0;				  // Количество комментариев
 };

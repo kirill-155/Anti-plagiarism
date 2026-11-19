@@ -11,8 +11,7 @@ void write_info_stud(string Name_student, vector<Solution_stud>& Stud)
 	for (int i = 0; i < Stud.size(); i++) 
 	{
 		out << Stud[i].Name_contest << " ";
-		out << Stud[i].Name_problem << " ";
-		out << Stud[i].Name_package << " : ";
+		out << Stud[i].Name_package << " ";
 		out << Stud[i].verdict << " ";
 		if (Stud[i].verdict=="Coincidence")
 		{
@@ -48,11 +47,11 @@ void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, ma
 	ofstream out(Folder_result + "\\" + puths[id_contest].first + " Levenstein " + to_string(DIST_LEVENSTEIN) + ".txt");
 	for (int i = 0; i < sol_stud.size(); i++)
 	{
-		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN && sol_stud[i].Name_dist_levenstein_num != -1
-			&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_problem[0]))
+		if (sol_stud[i].dist_levenstein <= DIST_LEVENSTEIN && sol_stud[i].Id_stud_dist_levenstein != -1
+			&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
 		{
-			st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_problem[0]);
-			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_problem << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
+			st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
+			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
 				<< sol_stud[i].Name_dist_levenstein_package << "\t\t" << sol_stud[i].dist_levenstein << "\n";
 		}
 	}
@@ -72,7 +71,7 @@ void write_info_cheat_stud_comments(vector<pair<string, vector<pair<string, map<
 	{
 		if (sol_stud[i].Number_comments > NUM_COMMENTS)
 		{
-			out_comment << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_problem << "\tGreat comment\t" << sol_stud[i].Number_comments << "\n";
+			out_comment << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tGreat comment\t" << sol_stud[i].Number_comments << "\n";
 		}
 	}
 	out_comment.close();
@@ -100,9 +99,9 @@ void write_info_cheat_stud_comment(vector<pair<string, vector<pair<string, map<c
 	{
 		ofstream out_comment(Folder_result + "\\Test\\" + puths[id_contest].first + " Comment " + to_string(p) + ".txt");
 		for (int i = 0; i < sol_stud.size(); i++)
-			if (sol_stud[i].Number_comments > p && is_valid_cpp(sol_stud[i].Name_problem))
+			if (sol_stud[i].Number_comments > p && is_valid_cpp(sol_stud[i].Name_package))
 			{
-				out_comment << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_problem << "\tGreat comment\t" << sol_stud[i].Number_comments << "\n";
+				out_comment << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tGreat comment\t" << sol_stud[i].Number_comments << "\n";
 			}
 		out_comment.close();
 	}
@@ -118,11 +117,11 @@ void write_info_cheat_stud1(vector<pair<string, vector<pair<string, map<char, ve
 	//	//set<string> st;
 	//	ofstream out(Folder_result + "\\" + pov + puths[id_contest].first + " " + to_string(p) + ".txt");
 	//	for (int i = 0; i < sol_stud.size(); i++)
-	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Name_dist_levenstein_num != -1)
-	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_problem[0]))
+	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Id_stud_dist_levenstein != -1)
+	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
 	//		{
-	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_problem[0]);
-	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_problem << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
+	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
+	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
 	//				<< sol_stud[i].Name_dist_levenstein_package << "\n";
 	//		}
 	//	
@@ -136,13 +135,13 @@ void write_info_cheat_stud1(vector<pair<string, vector<pair<string, map<char, ve
 	//	//ofstream out_comment(Folder_result + "\\" + puths[id_contest].first + " Comment " + to_string(NUM_COMMENTS) + ".txt");
 	//	for (int i = 0; i < sol_stud.size(); i++)
 	//	{
-	//		if (!isValidOkOrIgnor(sol_stud[i].Name_problem))
+	//		if (!isValidOkOrIgnor(sol_stud[i].Name_package))
 	//			continue;
-	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Name_dist_levenstein_num != -1)
-	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_problem[0]))
+	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Id_stud_dist_levenstein != -1)
+	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
 	//		{
-	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_problem[0]);
-	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_problem << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
+	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
+	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
 	//				<< sol_stud[i].Name_dist_levenstein_package << "\n";
 	//		}
 	//	}
