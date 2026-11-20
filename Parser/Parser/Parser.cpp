@@ -25,16 +25,7 @@ int main()
 				for (string task : tasks.second) // Перебираем по решениям задач
 				{
 					Solution_stud sol;
-					string path = Generate_path_solution(puths[id_contest].first,
-						puths[id_contest].second[id_stud].first, task);
-					sol.Solution = read_file(path);
-					sol.Name_stud = puths[id_contest].second[id_stud].first;
-					sol.Name_package = task;
-					sol.dist_levenstein = 1000;
-					string Code = sol.Solution;
-					sol.Name_compiler = identif_compil(Code);
-					Code = standardize(Code, sol.Name_compiler);
-					sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
+					scan_info_solution(sol, puths, id_contest, id_stud, task);
 
 					for (int id_stud_con = 0; id_stud_con < id_stud; id_stud_con++)					 // Перебираем по студентам, но только тех кого уже занесли
 					{
@@ -63,7 +54,6 @@ int main()
 						}
 					}
 					sol_stud.push_back(sol);
-					//cout << path << "\n";
 				}
 			}
 		}

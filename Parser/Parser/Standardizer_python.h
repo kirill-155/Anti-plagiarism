@@ -3,7 +3,6 @@
 
 class PythonStandardizer {
 public:
-    // -------- настройки ----------
     string typePrefix = "T_";
     string funcPrefix = "f_";
     string varPrefix = "v_";
@@ -43,7 +42,6 @@ public:
         "fractions","decimal","pathlib","io","abc","enum","dataclasses"
     };
 
-    // ---------- основной вход ----------
     string standardize(const string& src) {
         mapping_.clear();
         counters_.clear();
@@ -84,7 +82,8 @@ public:
                     out += "STR";
                     lastKeyword.clear();
                 }
-                else if ((id == "import" || id == "from") && atLineStart(src, start)) {
+                else if ((id == "import" || id == "from") 
+                    && atLineStart(src, start)) {// помогает определить является ли from настоящим импортом (не в конструкции raise/yield)
                     out += id;                         // import ... / from ... import ... — целиком
                     out += readStatement(src, i);
                     lastKeyword.clear();
@@ -114,7 +113,7 @@ private:
     map<string, string> mapping_;   // old -> new
     map<string, int>         counters_;  // prefix -> счётчик
 
-    // Новое имя: префикс по контексту + порядковый номер.
+    // Подбор нового имени
     string rename(const string& id, const string& lastKeyword, bool looksLikeFunc) {
         auto it = mapping_.find(id);
         if (it != mapping_.end())
@@ -131,21 +130,21 @@ private:
         return newName;
     }
 
-    // -------- читатели токенов (сдвигают i за токен) ----------
-
+    // Возвращает слово
     static string readWord(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && (alnum(s[i]) || s[i] == '_')) ++i;
         return s.substr(start, i - start);
     }
 
+    // Возвращает строку
     static string readLine(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != '\n') ++i;
         return s.substr(start, i - start);
     }
 
-    // строка до ';' или конца строки (';' тоже забираем)
+    // Возвращает строку до ';' или конца строки (';' тоже забираем)
     static string readStatement(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != ';' && s[i] != '\n') ++i;
@@ -153,7 +152,7 @@ private:
         return s.substr(start, i - start);
     }
 
-    // одинарные/двойные/тройные кавычки, с escape-последовательностями
+    // Пропускает строку в кавычках (одинарные/двойные/тройные кавычки)
     static void skipString(const string& s, size_t& i) {
         const char q = s[i];
         if (i + 2 < s.size() && s[i + 1] == q && s[i + 2] == q) {   // тройные кавычки
@@ -174,7 +173,7 @@ private:
         }
     }
 
-    // 123, 3.14, 0x1F, 0b1010, 0o777, 1_000, 1e-5, 2j
+    // Пропускает числа (123, 3.14, 0x1F, 0b1010, 0o777, 1_000, 1e-5, 2j)
     static void skipNumber(const string& s, size_t& i) {
         while (i < s.size()) {
             const char c = s[i];
@@ -184,16 +183,15 @@ private:
         }
     }
 
-    // префиксы строковых литералов: r, b, u, f и комбинации (регистр не важен)
+    // Определяет является ли символ префиксом строковых литералов: r, b, u, f и комбинации
     static bool isStringPrefix(const string& w) {
         string p;
-        for (char c : w) p += static_cast<char>(tolower(static_cast<unsigned char>(c)));
+        for (char c : w) p += tolower(c);
         return p == "r" || p == "b" || p == "u" || p == "f" ||
             p == "rb" || p == "br" || p == "rf" || p == "fr";
     }
 
-    // перед pos на этой строке только пробелы?
-    // (чтобы не принять raise ... from e / yield from за импорт)
+    // Определяет находится ли в начале строки
     static bool atLineStart(const string& s, size_t pos) {
         while (pos > 0 && s[pos - 1] != '\n') {
             if (!space(s[pos - 1])) return false;
@@ -202,6 +200,7 @@ private:
         return true;
     }
 
+    // Возвращает первый непробельный символ начиная с i
     static char nextNonSpace(const string& s, size_t i) {
         while (i < s.size() && space(s[i])) ++i;
         return i < s.size() ? s[i] : '\0';

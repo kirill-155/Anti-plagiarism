@@ -82,7 +82,7 @@ public:
             else {                                     // операторы, скобки, запятые...
                 out += c;
                 ++i;
-                // сбиваем контекст на разделителях, но не на пробелах/скобках
+                // сбиваем контекст на разделителях, но не на пробелах
                 if (c == ';' || c == '=' || c == ',' || c == ')' || c == '{' || c == '}')
                     lastKeyword.clear();
             }
@@ -121,14 +121,14 @@ private:
         return s.substr(start, i - start);
     }
 
-    // Возвращает всю строку до конца
+    // Возвращает строку
     static string readLine(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != '\n') ++i;
         return s.substr(start, i - start);
     }
 
-    // Возвращает весь коментарий
+    // Возвращает коментарий
     static string readComment(const string& s, size_t& i) {
         const size_t start = i;
         if (s[i + 1] == '/') {                     // // ... 
@@ -142,7 +142,7 @@ private:
         return s.substr(start, i - start);
     }
 
-    // Пропускает строку ("типо такую")
+    // Пропускает строку в кавычках ("типо такую")
     static void skipString(const string& s, size_t& i) {
         const char q = s[i++];
         while (i < s.size() && s[i] != q) {

@@ -16,13 +16,13 @@
 using namespace std;
 namespace fs = filesystem;
 
-string Folder_base_put = "..\\..\\..\\Contests";          // Корневая папка где лежат данные с соревнований
+string Folder_base_put = "..\\..\\..\\Contests";				// Корневая папка где лежат данные с соревнований
 string File_contest = "contest.txt";						    // Файл с названиями соревнований
 string File_tasks = "tasks.txt";							    // Файл с названиями заданий
 string File_compiler = "compiler.txt";						    // Файл с названиями компиляторов
 string File_student = "student.txt";						    // Файл со именами студентов
 string Folder_base_stud = "stud_work\\";					    //
-string Folder_result = "..\\..\\..\\Cheaters"; // Корневая папка результатов
+string Folder_result = "..\\..\\..\\Cheaters";					// Корневая папка результатов
 
 string Nick_name_coach = "Kirill-_-";
 const vector<int> DIST_LEVENSTEIN = { 5, 6, 3 };				// Пределы для C++, C#, Python

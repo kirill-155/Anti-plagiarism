@@ -12,6 +12,7 @@ void Claer_matrix(int mi, int mj)
 	}
 }
 
+// Сравнение двух строк по алгоритму Левенштейна
 int Algo_levenstein(string str1, string str2, int type)
 {
 	int n = str1.size(), m = str2.size();

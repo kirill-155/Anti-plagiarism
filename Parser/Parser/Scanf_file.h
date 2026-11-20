@@ -140,22 +140,20 @@ void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<str
 	}
 }
 
-void scan_info_solution(string fileName, Solution_stud& sol) 
+// Заполнение информации из посылки
+void scan_info_solution(Solution_stud& sol, vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, 
+	int id_contest, int id_stud, string task)
 {
-	ifstream in(fileName);
-	string str;
-	getline(in, str);//id
-	sol.Name_package = str;
-	getline(in, str);//time
-	sol.Date = str;
-	getline(in, str);
-	sol.Name_stud = str;
-	getline(in, str);
-	sol.Name_compiler = str;
-	while (getline(in, str)) {
-		sol.Solution += str + '\n';
-	}
-	in.close();
+	string path = Generate_path_solution(puths[id_contest].first,
+		puths[id_contest].second[id_stud].first, task);
+	sol.Solution = read_file(path);
+	sol.Name_stud = puths[id_contest].second[id_stud].first;
+	sol.Name_package = task;
+	sol.dist_levenstein = 1000;
+	string Code = sol.Solution;
+	sol.Name_compiler = identif_compil(Code);
+	Code = standardize(Code, sol.Name_compiler);
+	sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
 }
 
 // Кодировка: одна unicode-точка -> байт CP1251

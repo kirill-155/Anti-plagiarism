@@ -35,6 +35,7 @@ void write_info_all_stud(vector<pair<string, int>> All_stud)
 	out.close();
 }
 
+// Компаратор по дистанции Левенштейна
 bool dist_lev_sort(Solution_stud& a, Solution_stud& b) {
 	return a.dist_levenstein < b.dist_levenstein;
 }
@@ -80,6 +81,7 @@ void write_info_cheat_stud_levenstein(vector<pair<string, vector<pair<string, ma
 	out.close();
 }
 
+// Компаратор по длинне коментариев
 bool num_com_sort(Solution_stud& a, Solution_stud& b) {
 	return a.Number_comments > b.Number_comments;
 }

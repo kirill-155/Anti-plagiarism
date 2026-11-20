@@ -7,8 +7,7 @@ public:
     string funcPrefix = "f_";
     string varPrefix = "v_";
 
-    // Ключевые слова C# + контекстные ключевые слова + платформенные имена,
-    // которые переименовывать нельзя.
+    // Ключевые слова C# + контекстные ключевые слова + платформенные имена
     set<string> reserved = {
         // зарезервированные ключевые слова
         "abstract","as","base","bool","break","byte","case","catch","char",
@@ -33,15 +32,14 @@ public:
         "Exception","Task","Action","Func","Nullable","Tuple","Environment",
         // частые методы/свойства
         "ToString","Equals","GetHashCode","GetType","Length","Count",
-        // частые атрибуты (расширяйте при необходимости)
+        // частые атрибуты
         "Serializable","Obsolete","Debug","Conditional","Attribute",
         "TestMethod","Fact","Theory","InlineData"
     };
 
-    // Имена, которые считаем числами и заменяем на NUM (Math.PI и т.п.).
+    // Имена, которые считаем числами и заменяем на NUM
     set<string> numberNames = { "M_E", "M_PI" };
 
-    // ---------- основной вход ----------
     string standardize(const string& src) {
         mapping_.clear();
         counters_.clear();
@@ -117,7 +115,7 @@ private:
     map<string, string> mapping_;   // old -> new
     map<string, int>         counters_;  // prefix -> счётчик
 
-    // Новое имя: префикс по контексту + порядковый номер.
+    // Подбор нового имени
     string rename(const string& id, const string& lastKeyword, bool looksLikeFunc) {
         auto it = mapping_.find(id);
         if (it != mapping_.end())
@@ -127,8 +125,8 @@ private:
         if (lastKeyword == "class" || lastKeyword == "struct" || lastKeyword == "interface" ||
             lastKeyword == "enum" || lastKeyword == "record" || lastKeyword == "namespace" ||
             lastKeyword == "delegate" || lastKeyword == "event")
-            prefix = typePrefix;
-        else if (looksLikeFunc)                    // дальше идёт '(' — метод
+            prefix = typePrefix;                   // если предыдущий был одним из выбраннвх кл. слов
+        else if (looksLikeFunc)                    // если дальше идёт '(', то функция
             prefix = funcPrefix;
 
         const string newName = prefix + to_string(++counters_[prefix]);
@@ -136,21 +134,21 @@ private:
         return newName;
     }
 
-    // -------- читатели токенов (сдвигают i за токен) ----------
-
+    // Возвращает слово
     static string readWord(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && (alnum(s[i]) || s[i] == '_')) ++i;
         return s.substr(start, i - start);
     }
 
+    // Возвращает строку
     static string readLine(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != '\n') ++i;
         return s.substr(start, i - start);
     }
 
-    // строка до ';' или конца строки (';' тоже забираем)
+    // Возвращает строку до ';' или конца строки (';' тоже забираем)
     static string readStatement(const string& s, size_t& i) {
         const size_t start = i;
         while (i < s.size() && s[i] != ';' && s[i] != '\n') ++i;
@@ -158,6 +156,7 @@ private:
         return s.substr(start, i - start);
     }
 
+    // Возвращает коментарий
     static string readComment(const string& s, size_t& i) {
         const size_t start = i;
         if (s[i + 1] == '/') {                     // // ... до конца строки
@@ -171,7 +170,7 @@ private:
         return s.substr(start, i - start);
     }
 
-    // начинается ли строковый литерал: "...", '...', @"...", $"...", $@"...", @$"..."
+    // Определяет начинается ли строковый литерал: "...", '...', @"...", $"...", $@"...", @$"..."
     static bool startsString(const string& s, size_t i) {
         const char c = s[i];
         if (c == '"' || c == '\'') return true;
@@ -181,7 +180,7 @@ private:
         return j < s.size() && s[j] == '"';
     }
 
-    // пропускает строку любого вида (выражения внутри $"..." упрощённо не разбираем)
+    // Пропускает строку в кавычках ("...", '...', @"...", $"...", $@"...", @$"...")
     static void skipString(const string& s, size_t& i) {
         bool verbatim = false;
         while (i < s.size() && (s[i] == '$' || s[i] == '@')) {   // префиксы
@@ -189,7 +188,10 @@ private:
             ++i;
         }
         if (i >= s.size()) return;
-        if (s[i] == '\'') { skipQuoted(s, i, '\'', false); return; }   // символьный литерал
+        if (s[i] == '\'') {                                      // символьный литерал
+            skipQuoted(s, i, '\'', false); 
+            return; 
+        }
 
         if (!verbatim && i + 2 < s.size() && s[i + 1] == '"' && s[i + 2] == '"') {   // raw-строка
             size_t q = 0;
@@ -205,7 +207,6 @@ private:
         skipQuoted(s, i, '"', verbatim);
     }
 
-    // обычная строка с escape или verbatim с удвоенными кавычками
     static void skipQuoted(const string& s, size_t& i, char q, bool verbatim) {
         ++i;                                       // открывающая кавычка
         while (i < s.size()) {
@@ -214,12 +215,12 @@ private:
                 ++i;                               // закрывающая
                 return;
             }
-            if (!verbatim && s[i] == '\\') ++i;    // escape
+            if (!verbatim && s[i] == '\\') ++i;    
             ++i;
         }
     }
 
-    // 123, 3.14, 0xFF, 1_000, 1.5e-3, 2.5m, 10UL
+    // Пропускает числа (123, 3.14, 0xFF, 1_000, 1.5e-3, 2.5m, 10UL)
     static void skipNumber(const string& s, size_t& i) {
         while (i < s.size()) {
             const char c = s[i];
@@ -229,13 +230,14 @@ private:
         }
     }
 
-    // слово w ровно в позиции i (не часть более длинного идентификатора)
+    // Проверяет, что в позиции i стоит отдельное слово w, а не начало более длинного идентификатора
     static bool isWordAt(const string& s, size_t i, const string& w) {
         if (s.compare(i, w.size(), w) != 0) return false;
         const size_t j = i + w.size();
         return j >= s.size() || (!alnum(s[j]) && s[j] != '_');
     }
 
+    // Возвращает первый непробельный символ начиная с i
     static char nextNonSpace(const string& s, size_t i) {
         while (i < s.size() && space(s[i])) ++i;
         return i < s.size() ? s[i] : '\0';
