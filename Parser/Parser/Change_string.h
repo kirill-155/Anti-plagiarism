@@ -15,7 +15,7 @@ inline string change_str_cpp(string& s, int& comments)
 			Mark_char[i] = 1;
 		else if (s[i] == '#')						 // директивы
 		{
-			while (i < n && s[i] != '\n')
+			while (i < n && s[i] != '\n' && s[i] != '/')
 			{
 				Mark_char[i] = 1;
 				++i;

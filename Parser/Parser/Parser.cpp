@@ -4,8 +4,7 @@
 #include "Levenstein.h"
 #include "Change_string.h"
 #include "Mini_algo.h"
-#include "Standardizer_cpp.h"
-#include "Standardizer_csh.h"
+#include "Type_program_language.h"
 
 int main()
 {
@@ -28,50 +27,43 @@ int main()
 					Solution_stud sol;
 					string path = Generate_path_solution(puths[id_contest].first,
 						puths[id_contest].second[id_stud].first, task);
-					ifstream in(path);
-					if (in.is_open()) {
-						string str;
-						while (getline(in, str)) {
-							sol.Solution += str + '\n';
-						}
-						sol.Name_stud = puths[id_contest].second[id_stud].first;
-						sol.Name_package = task;
-						sol.dist_levenstein = 1000;
-						string Code = sol.Solution;
-						sol.Name_compiler = identif_compil(Code);
-						Code = standardize(Code, sol.Name_compiler);
-						sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
+					sol.Solution = read_file(path);
+					sol.Name_stud = puths[id_contest].second[id_stud].first;
+					sol.Name_package = task;
+					sol.dist_levenstein = 1000;
+					string Code = sol.Solution;
+					sol.Name_compiler = identif_compil(Code);
+					Code = standardize(Code, sol.Name_compiler);
+					sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
 
-						for (int id_stud_con = 0; id_stud_con < id_stud; id_stud_con++)					 // ѕеребираем по студентам, но только тех кого уже занесли
+					for (int id_stud_con = 0; id_stud_con < id_stud; id_stud_con++)					 // ѕеребираем по студентам, но только тех кого уже занесли
+					{
+						for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])	 // ѕеребираем по задани€м с конкретной буквой
 						{
-							for (string task_con : puths[id_contest].second[id_stud_con].second[task[0]])	 // ѕеребираем по задани€м с конкретной буквой
+							Solution_stud& sol_con = sol_stud[id_stud_con];
+							if (sol.Name_compiler == sol_con.Name_compiler)
 							{
-								Solution_stud& sol_con = sol_stud[id_stud_con];
-								if (sol.Name_compiler == sol_con.Name_compiler)
+								count_comparisons++;
+								int dist = Algo_levenstein(sol.Solution, sol_con.Solution, type_leng(sol.Name_compiler));
+								if (sol.dist_levenstein > dist)
 								{
-									count_comparisons++;
-									int dist = Algo_levenstein(sol.Solution, sol_con.Solution, type_leng(sol.Name_compiler));
-									if (sol.dist_levenstein > dist)
-									{
-										sol.dist_levenstein = dist;
-										sol.Name_stud_dist_levenstein = puths[id_contest].second[id_stud_con].first;
-										sol.Name_dist_levenstein_package = task_con;
-										sol.Id_stud_dist_levenstein = id_stud_con;
-									}
-									if (sol_con.dist_levenstein > dist)
-									{
-										sol_con.dist_levenstein = dist;
-										sol_con.Name_stud_dist_levenstein = puths[id_contest].second[id_stud].first;
-										sol_con.Name_dist_levenstein_package = task;
-										sol_con.Id_stud_dist_levenstein = id_stud;
-									}
+									sol.dist_levenstein = dist;
+									sol.Name_stud_dist_levenstein = puths[id_contest].second[id_stud_con].first;
+									sol.Name_dist_levenstein_package = task_con;
+									sol.Id_stud_dist_levenstein = id_stud_con;
+								}
+								if (sol_con.dist_levenstein > dist)
+								{
+									sol_con.dist_levenstein = dist;
+									sol_con.Name_stud_dist_levenstein = puths[id_contest].second[id_stud].first;
+									sol_con.Name_dist_levenstein_package = task;
+									sol_con.Id_stud_dist_levenstein = id_stud;
 								}
 							}
 						}
-						sol_stud.push_back(sol);
-						//cout << path << "\n";
 					}
-					in.close();
+					sol_stud.push_back(sol);
+					//cout << path << "\n";
 				}
 			}
 		}

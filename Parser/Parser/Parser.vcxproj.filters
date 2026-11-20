@@ -47,5 +47,8 @@
     <ClInclude Include="Standardizer_python.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Type_program_language.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

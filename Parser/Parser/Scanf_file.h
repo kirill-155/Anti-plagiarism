@@ -105,7 +105,7 @@ bool isValidOkOrIgnor(string_view str) {
 	return regex_search(str.data(), r) || regex_search(str.data(), r2);
 }
 
-//all_base_info
+// —читывает все папки и файлы по заданной структуре
 void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puth)
 {
 	vector<string> Name_contests;
@@ -131,7 +131,7 @@ void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<str
 			map<char, vector<string>> Name_tasks_map;
 
 			for (string Name_task : Name_tasks) {
-				if (!Flag_ValidOkOrIgnor || isValidOkOrIgnor(Name_task))
+				if (Scan_mode != 0 || !Flag_ValidOkOrIgnor || isValidOkOrIgnor(Name_task))
 					Name_tasks_map[Name_task[0]].push_back(Name_task);
 			}
 			Name_student_tasks.push_back({ Name_student ,Name_tasks_map });
@@ -156,4 +156,60 @@ void scan_info_solution(string fileName, Solution_stud& sol)
 		sol.Solution += str + '\n';
 	}
 	in.close();
+}
+
+//  одировка: одна unicode-точка -> байт CP1251
+static char to_cp1251(unsigned u)
+{
+	if (u < 0x80) return (char)u;
+	if (u >= 0x0410 && u <= 0x044F) return (char)(u - 0x0410 + 0xC0);	// ј-я, а-€
+	switch (u)
+	{
+	case 0x0401: return (char)0xA8;	// ®
+	case 0x0451: return (char)0xB8;	// Є
+	case 0x2116: return (char)0xB9;	// є
+	case 0x00AB: return (char)0xAB;	// Ђ
+	case 0x00BB: return (char)0xBB;	// ї
+	case 0x2014: return (char)0x97;	// Ч
+	case 0x2013: return (char)0x96;	// Ц
+	case 0x2026: return (char)0x85;	// Е
+	case 0x00A0: return (char)0xA0;	// неразрывный пробел
+	default:     return '?';
+	}
+}
+
+// „итает UTF-8 файл целиком и переводит в CP1251
+inline std::string read_file(const std::string& path)
+{
+	std::ifstream in(path, std::ios::binary);
+	if (!in.is_open()) return "";
+
+	in.seekg(0, std::ios::end);
+	std::string data((size_t)in.tellg(), '\0');
+	in.seekg(0, std::ios::beg);
+	in.read(&data[0], (std::streamsize)data.size());
+
+	size_t i = (data.compare(0, 3, "\xEF\xBB\xBF") == 0) ? 3 : 0;	// пропускаем BOM
+	size_t n = data.size();
+	std::string out;
+	out.reserve(n);
+
+	while (i < n)
+	{
+		unsigned char c = data[i];
+		unsigned u; int len;
+		if (c < 0x80) { u = c;        len = 1; }
+		else if ((c & 0xE0) == 0xC0) { u = c & 0x1F; len = 2; }
+		else if ((c & 0xF0) == 0xE0) { u = c & 0x0F; len = 3; }
+		else if ((c & 0xF8) == 0xF0) { u = c & 0x07; len = 4; }
+		else { ++i; continue; }		// битый байт
+		for (int k = 1; k < len && i + k < n; k++)
+			u = (u << 6) | ((unsigned char)data[i + k] & 0x3F);
+		i += len;
+		out += to_cp1251(u);
+	}
+
+	if (!out.empty() && out.back() != '\n')
+		out += '\n';
+	return out;
 }

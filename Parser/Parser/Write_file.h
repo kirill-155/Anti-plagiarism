@@ -1,6 +1,6 @@
 #pragma once
 #include "Header.h"
-#include "Mini_algo.h"
+#include "Type_program_language.h"
 
 void write_info_stud(string Name_student, vector<Solution_stud>& Stud)
 {
@@ -126,67 +126,4 @@ void write_info_cheat_stud(vector<pair<string, vector<pair<string, map<char, vec
 
 	write_info_cheat_stud_levenstein(puths, sol_stud, id_contest);
 	write_info_cheat_stud_comments(puths, sol_stud, id_contest);
-}
-
-// Проверяет названия файлов. С вердиктом OK или Ignor возвращает true
-bool isValidOkOrIgnor1(string_view str) {
-	static const regex r(R"((OK))");
-	static const regex r2(R"((Ignored))");
-	return regex_search(str.data(), r) || regex_search(str.data(), r2);
-}
-
-void write_info_cheat_stud_comment(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int& id_contest) {
-	vector<int> f = { 0,5,10,20,30,40,50,100 }; // Количество комментариев
-	for (int p : f) 
-	{
-		ofstream out_comment(Folder_result + "\\Test\\" + puths[id_contest].first + " Comment " + to_string(p) + ".txt");
-		for (int i = 0; i < sol_stud.size(); i++)
-			if (sol_stud[i].Number_comments > p && is_valid_cpp(sol_stud[i].Name_package))
-			{
-				out_comment << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tGreat comment\t" << sol_stud[i].Number_comments << "\n";
-			}
-		out_comment.close();
-	}
-}
-
-void write_info_cheat_stud1(vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, vector<Solution_stud>& sol_stud, int id_contest)
-{
-	write_info_cheat_stud_comment(puths, sol_stud, id_contest);
-	//vector<int> f = { 5,10,20,30,40,50 };
-	//string pov = "С повторами\\";
-	//for (int p : f)
-	//{
-	//	//set<string> st;
-	//	ofstream out(Folder_result + "\\" + pov + puths[id_contest].first + " " + to_string(p) + ".txt");
-	//	for (int i = 0; i < sol_stud.size(); i++)
-	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Id_stud_dist_levenstein != -1)
-	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
-	//		{
-	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
-	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
-	//				<< sol_stud[i].Name_dist_levenstein_package << "\n";
-	//		}
-	//	
-	//	out.close();
-	//}
-
-	//for (int p : f)
-	//{
-	//	//set<string> st;
-	//	ofstream out(Folder_result + "\\" + pov + "Ok\\" + puths[id_contest].first + " " + to_string(p) + ".txt");
-	//	//ofstream out_comment(Folder_result + "\\" + puths[id_contest].first + " Comment " + to_string(NUM_COMMENTS) + ".txt");
-	//	for (int i = 0; i < sol_stud.size(); i++)
-	//	{
-	//		if (!isValidOkOrIgnor(sol_stud[i].Name_package))
-	//			continue;
-	//		if (sol_stud[i].dist_levenstein <= p && sol_stud[i].Id_stud_dist_levenstein != -1)
-	//			//&& !st.count(sol_stud[i].Name_stud + sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_package[0]))
-	//		{
-	//			//st.insert(sol_stud[i].Name_stud_dist_levenstein + sol_stud[i].Name_stud + sol_stud[i].Name_package[0]);
-	//			out << sol_stud[i].Name_stud << "\\" << sol_stud[i].Name_package << "\tCoincidence\t" << sol_stud[i].Name_stud_dist_levenstein << "\\"
-	//				<< sol_stud[i].Name_dist_levenstein_package << "\n";
-	//		}
-	//	}
-	//	out.close();
-	//}
 }
