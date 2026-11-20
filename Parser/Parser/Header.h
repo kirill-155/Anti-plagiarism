@@ -11,21 +11,23 @@
 #include <regex>
 #include <set>
 #include <cctype>
+#include <chrono>
 
 using namespace std;
 namespace fs = filesystem;
 
-string Folder_base_put = "..\\..\\..\\submission\\submissions1";          // Корневая папка где лежат данные с соревнований
+string Folder_base_put = "..\\..\\..\\Contests";          // Корневая папка где лежат данные с соревнований
 string File_contest = "contest.txt";						    // Файл с названиями соревнований
 string File_tasks = "tasks.txt";							    // Файл с названиями заданий
 string File_compiler = "compiler.txt";						    // Файл с названиями компиляторов
 string File_student = "student.txt";						    // Файл со именами студентов
 string Folder_base_stud = "stud_work\\";					    //
-string Folder_result = "..\\..\\..\\Списки списавших\\submissions1"; // Корневая папка результатов
+string Folder_result = "..\\..\\..\\Cheaters"; // Корневая папка результатов
 
 string Nick_name_coach = "Kirill-_-";
 const vector<int> DIST_LEVENSTEIN = { 5, 6, 3 };				// Пределы для C++, C#, Python
 const int NUM_COMMENTS = 0;
+int Scan_mode = 0;							  // Способ чтения файлов: 0 - ЯндексКонтест; 1 - Codeforces; 
 bool Flag_ValidOkOrIgnor = false;			  // Cчитывать только Ok или Ignor
 
 struct Solution_stud{

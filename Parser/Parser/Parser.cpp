@@ -9,6 +9,9 @@
 
 int main()
 {
+	auto start = chrono::steady_clock::now();
+	int count_comparisons = 0;
+
 	setlocale(LC_ALL, "Russian");
 	vector<pair<string, vector<pair<string, map<char, vector<string>>>>>> puths;// контест, студенты, задачи
 	scanf_all_info(puths);
@@ -46,6 +49,7 @@ int main()
 								Solution_stud& sol_con = sol_stud[id_stud_con];
 								if (sol.Name_compiler == sol_con.Name_compiler)
 								{
+									count_comparisons++;
 									int dist = Algo_levenstein(sol.Solution, sol_con.Solution, type_leng(sol.Name_compiler));
 									if (sol.dist_levenstein > dist)
 									{
@@ -73,4 +77,11 @@ int main()
 		}
 		write_info_cheat_stud(puths, sol_stud, id_contest);
 	}
+
+	auto end = std::chrono::steady_clock::now();
+
+	auto sec = chrono::duration<double>(end - start).count();
+	ofstream out("system logs.txt", std::ios::app);
+	out << "Время выполнения: " << sec << " сек. \tКоличество сравниваний: " << count_comparisons <<"\n";
+	out.close();
 }
