@@ -28,7 +28,7 @@ string Nick_name_coach = "Kirill-_-";
 const vector<int> DIST_LEVENSTEIN = { 5, 6, 3 };				// Пределы для C++, C#, Python
 const int NUM_COMMENTS = 0;
 int Scan_mode = 0;							  // Способ чтения файлов: 0 - ЯндексКонтест; 1 - Codeforces; 
-bool Flag_ValidOkOrIgnor = false;			  // Cчитывать только Ok или Ignor
+bool Flag_ValidOkOrIgnor = true;			  // Cчитывать только Ok или Ignor
 
 struct Solution_stud{
 	string Name_contest = ""; 				  // Название контеста
@@ -42,6 +42,5 @@ struct Solution_stud{
 	int dist_levenstein = 0;				  // Расстояние Левенштейна
 	string Name_stud_dist_levenstein = "";	  // Имя студента с наименьшим расстоянием Левенштейна
 	string Name_dist_levenstein_package = ""; // Название задачи с наименьшим расстоянием Левенштейна
-	int Id_stud_dist_levenstein = -1; 		  // Порядковый номер студента с похожим решением
 	int Number_comments = 0;				  // Количество комментариев
 };

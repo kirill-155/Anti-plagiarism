@@ -1,5 +1,8 @@
 #pragma once
 #include"Header.h"
+#include "Change_string.h"
+#include "Mini_algo.h"
+#include "Type_program_language.h"
 
 void scanf_file_contest(string fileName, vector<string>& Name_number_contest) 
 {
@@ -140,22 +143,6 @@ void scanf_all_info(vector<pair<string, vector<pair<string, map<char, vector<str
 	}
 }
 
-// Заполнение информации из посылки
-void scan_info_solution(Solution_stud& sol, vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, 
-	int id_contest, int id_stud, string task)
-{
-	string path = Generate_path_solution(puths[id_contest].first,
-		puths[id_contest].second[id_stud].first, task);
-	sol.Solution = read_file(path);
-	sol.Name_stud = puths[id_contest].second[id_stud].first;
-	sol.Name_package = task;
-	sol.dist_levenstein = 1000;
-	string Code = sol.Solution;
-	sol.Name_compiler = identif_compil(Code);
-	Code = standardize(Code, sol.Name_compiler);
-	sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
-}
-
 // Кодировка: одна unicode-точка -> байт CP1251
 static char to_cp1251(unsigned u)
 {
@@ -210,4 +197,20 @@ inline std::string read_file(const std::string& path)
 	if (!out.empty() && out.back() != '\n')
 		out += '\n';
 	return out;
+}
+
+// Заполнение информации из посылки
+void scan_info_solution(Solution_stud& sol, vector<pair<string, vector<pair<string, map<char, vector<string>>>>>>& puths, 
+	int id_contest, int id_stud, string task)
+{
+	string path = Generate_path_solution(puths[id_contest].first,
+		puths[id_contest].second[id_stud].first, task);
+	sol.Solution = read_file(path);
+	sol.Name_stud = puths[id_contest].second[id_stud].first;
+	sol.Name_package = task;
+	sol.dist_levenstein = 1000;
+	string Code = sol.Solution;
+	sol.Name_compiler = identif_compil(Code);
+	Code = standardize(Code, sol.Name_compiler);
+	sol.Solution = change_str(Code, sol.Number_comments, sol.Name_compiler);
 }
